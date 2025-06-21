@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Upload, Camera, X, Loader2, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -16,7 +16,11 @@ const ImageUploadForm: React.FC<ImageUploadFormProps> = ({ onIngredientsDetected
   const [detectedFoods, setDetectedFoods] = useState<DetectedFood[]>([]);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const cameraInputRef = useRef<HTMLInputElement>(null);
+  // Camera stream refs / state
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isCameraActive, setIsCameraActive] = useState(false);
+  const [videoStream, setVideoStream] = useState<MediaStream | null>(null);
+  const [capturedUrl, setCapturedUrl] = useState<string | null>(null);
 
   const handleFileSelect = (file: File) => {
     if (file && file.type.startsWith('image/')) {
@@ -37,12 +41,70 @@ const ImageUploadForm: React.FC<ImageUploadFormProps> = ({ onIngredientsDetected
     }
   };
 
-  const handleCameraCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      handleFileSelect(file);
+  /* ------------------------------------------------------------------
+   * Camera capture helpers using MediaDevices API
+   * ----------------------------------------------------------------*/
+  const openCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      setVideoStream(stream);
+      setIsCameraActive(true);
+    } catch (err) {
+      console.error('Camera access denied:', err);
+      setError('Unable to access camera. Please allow camera permissions.');
     }
   };
+
+  const closeCamera = () => {
+    videoStream?.getTracks().forEach((track) => track.stop());
+    setVideoStream(null);
+    setIsCameraActive(false);
+  };
+
+  const snapPhoto = () => {
+    if (!videoRef.current) return;
+    const video = videoRef.current;
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const dataUrl = canvas.toDataURL('image/png');
+    setCapturedUrl(dataUrl);
+    closeCamera();
+  };
+
+  const approvePhoto = () => {
+    if (!capturedUrl) return;
+    // Convert dataURL to File for downstream logic
+    const arr = capturedUrl.split(',');
+    const mimeMatch = arr[0].match(/:(.*?);/);
+    const mime = mimeMatch ? mimeMatch[1] : 'image/png';
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) u8arr[n] = bstr.charCodeAt(n);
+    const file = new File([u8arr], 'captured.png', { type: mime });
+    handleFileSelect(file);
+    setCapturedUrl(null);
+  };
+
+  const retakePhoto = () => {
+    setCapturedUrl(null);
+    openCamera();
+  };
+
+  // attach stream to video element
+  useEffect(() => {
+    if (videoRef.current && videoStream) {
+      // @ts-ignore: assigning stream to HTMLVideoElement
+      videoRef.current.srcObject = videoStream;
+    }
+    return () => {
+      videoStream?.getTracks().forEach((t) => t.stop());
+    };
+  }, [videoStream]);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -63,9 +125,6 @@ const ImageUploadForm: React.FC<ImageUploadFormProps> = ({ onIngredientsDetected
     setError(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
-    }
-    if (cameraInputRef.current) {
-      cameraInputRef.current.value = '';
     }
   };
 
@@ -136,51 +195,54 @@ const ImageUploadForm: React.FC<ImageUploadFormProps> = ({ onIngredientsDetected
             Upload Refrigerator/Pantry Image
           </h3>
           
-          {!previewUrl ? (
-            <div
-              className="border-2 border-dashed border-cookify-lightgray rounded-lg p-8 text-center hover:border-cookify-blue transition-colors cursor-pointer"
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-              <p className="text-white mb-2">
-                Drag and drop an image here, or click to select
-              </p>
-              <p className="text-gray-400 text-sm">
-                Supports JPG, PNG, GIF up to 10MB
-              </p>
-              
-              <div className="flex gap-2 mt-4 justify-center">
+          {isCameraActive ? (
+            /* -------------------- Live camera preview -------------------- */
+            <div className="relative">
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                className="w-full h-64 object-cover rounded-lg bg-black"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={snapPhoto}
+                className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-cookify-blue text-white hover:bg-blue-600"
+              >
+                Snap Photo
+              </Button>
+            </div>
+          ) : capturedUrl ? (
+            /* -------------------- Captured photo preview ------------------ */
+            <div className="space-y-4">
+              <div className="relative">
+                <img
+                  src={capturedUrl}
+                  alt="Captured"
+                  className="w-full h-64 object-cover rounded-lg"
+                />
+              </div>
+              <div className="flex gap-2">
                 <Button
                   type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    fileInputRef.current?.click();
-                  }}
-                  className="bg-cookify-lightgray border-cookify-blue text-white hover:bg-cookify-blue"
+                  onClick={approvePhoto}
+                  className="flex-1 bg-cookify-blue text-white hover:bg-blue-600"
                 >
-                  <Upload className="h-4 w-4 mr-2" />
-                  Upload Image
+                  Approve
                 </Button>
                 <Button
                   type="button"
                   variant="outline"
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    cameraInputRef.current?.click();
-                  }}
-                  className="bg-cookify-lightgray border-cookify-blue text-white hover:bg-cookify-blue"
+                  onClick={retakePhoto}
+                  className="flex-1 border-cookify-blue text-white hover:bg-cookify-blue"
                 >
-                  <Camera className="h-4 w-4 mr-2" />
-                  Take Photo
+                  Retake
                 </Button>
               </div>
             </div>
-          ) : (
+          ) : previewUrl ? (
             <div className="space-y-4">
               <div className="relative">
                 <img
@@ -215,6 +277,50 @@ const ImageUploadForm: React.FC<ImageUploadFormProps> = ({ onIngredientsDetected
                 )}
               </Button>
             </div>
+          ) : (
+            /* ------------------- Default drop zone ------------------- */
+            <div
+              className="border-2 border-dashed border-cookify-lightgray rounded-lg p-8 text-center hover:border-cookify-blue transition-colors cursor-pointer"
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+              <p className="text-white mb-2">
+                Drag and drop an image here, or click to select
+              </p>
+              <p className="text-gray-400 text-sm">
+                Supports JPG, PNG, GIF up to 10MB
+              </p>
+              <div className="flex gap-2 mt-4 justify-center">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    fileInputRef.current?.click();
+                  }}
+                  className="bg-cookify-lightgray border-cookify-blue text-white hover:bg-cookify-blue"
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  Upload Image
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openCamera();
+                  }}
+                  className="bg-cookify-lightgray border-cookify-blue text-white hover:bg-cookify-blue"
+                >
+                  <Camera className="h-4 w-4 mr-2" />
+                  Take Photo
+                </Button>
+              </div>
+            </div>
           )}
           
           {error && (
@@ -231,14 +337,6 @@ const ImageUploadForm: React.FC<ImageUploadFormProps> = ({ onIngredientsDetected
         type="file"
         accept="image/*"
         onChange={handleFileInputChange}
-        className="hidden"
-      />
-      <input
-        ref={cameraInputRef}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        onChange={handleCameraCapture}
         className="hidden"
       />
 
