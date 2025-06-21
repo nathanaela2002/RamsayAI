@@ -29,6 +29,8 @@ const IngredientForm: React.FC<IngredientFormProps> = ({ onSubmit }) => {
     setIngredients(ingredients.filter((_, i) => i !== index));
   };
 
+  const handleClearIngredients = () => setIngredients([]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (currentIngredient.trim()) {
@@ -104,25 +106,34 @@ const IngredientForm: React.FC<IngredientFormProps> = ({ onSubmit }) => {
           </div>
           
           {ingredients.length > 0 && (
-            <div className="mb-4">
-              <div className="flex flex-wrap gap-2">
-                {ingredients.map((ingredient, index) => (
-                  <div 
-                    key={index} 
-                    className="flex items-center bg-cookify-lightgray text-white rounded-full px-3 py-1"
-                  >
-                    <span>{ingredient}</span>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveIngredient(index)}
-                      className="ml-2 text-gray-400 hover:text-white"
+            <>
+              <div className="mb-2">
+                <div className="flex flex-wrap gap-2">
+                  {ingredients.map((ingredient, index) => (
+                    <div 
+                      key={index} 
+                      className="flex items-center bg-cookify-lightgray text-white rounded-full px-3 py-1"
                     >
-                      <X size={14} />
-                    </button>
-                  </div>
-                ))}
+                      <span>{ingredient}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveIngredient(index)}
+                        className="ml-2 text-gray-400 hover:text-white"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+              <button
+                type="button"
+                onClick={handleClearIngredients}
+                className="mb-4 text-xs text-red-400 hover:text-red-300 underline"
+              >
+                Clear All Ingredients
+              </button>
+            </>
           )}
           
           <button 
@@ -140,7 +151,7 @@ const IngredientForm: React.FC<IngredientFormProps> = ({ onSubmit }) => {
           {ingredients.length > 0 && (
             <div className="bg-cookify-lightgray rounded-lg p-4">
               <h3 className="text-white font-medium mb-3">Current Ingredients:</h3>
-              <div className="flex flex-wrap gap-2 mb-4">
+              <div className="flex flex-wrap gap-2 mb-2">
                 {ingredients.map((ingredient, index) => (
                   <div 
                     key={index} 
@@ -157,6 +168,13 @@ const IngredientForm: React.FC<IngredientFormProps> = ({ onSubmit }) => {
                   </div>
                 ))}
               </div>
+              <button
+                type="button"
+                onClick={handleClearIngredients}
+                className="mb-4 text-xs text-red-400 hover:text-red-300 underline"
+              >
+                Clear All Ingredients
+              </button>
               
               <button 
                 type="button"
