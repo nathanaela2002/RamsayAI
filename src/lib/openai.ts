@@ -321,3 +321,42 @@ export async function generateRecipesWithIngredients(
   const jsonStr = firstBracket >= 0 ? content.slice(firstBracket, lastBracket + 1) : '[]';
   return JSON.parse(jsonStr);
 }
+
+export async function generateRecipeImage(recipeTitle: string): Promise<string> {
+  try {
+    console.log('Generating AI image for recipe:', recipeTitle);
+    
+    const response = await fetch('https://api.openai.com/v1/images/generations', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: 'dall-e-3',
+        prompt: `A beautiful, appetizing photograph of ${recipeTitle}. Professional food photography style, well-lit, high quality, realistic, delicious looking food.`,
+        n: 1,
+        size: '1024x1024',
+        quality: 'standard',
+        style: 'natural',
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('OpenAI DALL-E API error:', errorData);
+      throw new Error(`OpenAI DALL-E API error: ${JSON.stringify(errorData)}`);
+    }
+
+    const data = await response.json();
+    const imageUrl = data.data[0].url;
+    
+    console.log('Generated image URL:', imageUrl);
+    return imageUrl;
+    
+  } catch (error) {
+    console.error('Error generating recipe image:', error);
+    // Return a placeholder image or the original image on error
+    return '';
+  }
+}

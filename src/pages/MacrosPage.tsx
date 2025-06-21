@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import MacroNutrientForm from '@/components/MacroNutrientForm';
 import IngredientForm from '@/components/IngredientForm';
+import RecipeCard from '@/components/RecipeCard';
 import { generateRecipesWithIngredients, SimpleRecipe } from '@/lib/openai';
 import { showErrorToast } from '@/lib/utils';
 import { ArrowLeft } from 'lucide-react';
@@ -89,22 +90,22 @@ const MacrosPage = () => {
         {loading ? (
           <p className="text-center mt-8 text-gray-400">Generating recipes...</p>
         ) : step === 'results' && recipes.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-            {recipes.map((r, idx) => (
-              <div key={idx} className="bg-cookify-darkgray rounded-xl overflow-hidden">
-                <img src={`https://source.unsplash.com/400x300/?food&sig=${idx}`} alt={r.title} className="w-full h-40 object-cover" />
-                <div className="p-4">
-                  <h3 className="text-lg font-semibold text-white mb-2">{r.title}</h3>
-                  <ul className="list-disc list-inside text-gray-300 text-sm space-y-1 mb-3">
-                    {r.ingredients.map((ing,i)=>(<li key={i}>{ing}</li>))}
-                  </ul>
-                  <p className="text-xs text-gray-400">Macros: {r.macros.calories} kcal • {r.macros.protein}g P • {r.macros.carbs}g C • {r.macros.fat}g F</p>
-                </div>
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {recipes.map((recipe, idx) => (
+              <RecipeCard
+                key={idx}
+                id={idx}
+                title={recipe.title}
+                image={`https://source.unsplash.com/400x300/?food&sig=${idx}`}
+                useAIImage={true}
+                favorite={false}
+                macros={recipe.macros}
+                ingredients={recipe.ingredients}
+              />
             ))}
           </div>
         ) : step === 'results' && searchQuery ? (
-          <div className="text-center py-12 mt-8">
+          <div className="text-center py-12">
             <h3 className="text-xl font-semibold mb-2">No recipes found</h3>
             <p className="text-gray-400">
               Try adjusting your search criteria or ingredients
