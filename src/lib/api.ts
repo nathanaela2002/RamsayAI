@@ -1,4 +1,3 @@
-
 // API Key from environment variable
 const SPOONACULAR_API_KEY = '690d9303f13a498b9dfd175a78790988';
 const API_BASE_URL = 'https://api.spoonacular.com';
@@ -24,6 +23,7 @@ export interface Recipe {
       step: string;
     }>;
   }>;
+  dishTypes?: string[];
   extendedIngredients?: Array<{
     id: number;
     name: string;

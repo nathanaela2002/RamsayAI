@@ -143,7 +143,7 @@ const ImageUploadForm: React.FC<ImageUploadFormProps> = ({ onIngredientsDetected
       setDetectedFoods(result.foods);
       
       // Convert detected foods to ingredients list
-      const ingredients = result.foods.map(item => item.name);
+      const ingredients = result.foods.map(item => `${item.count} ${item.name}`);
       onIngredientsDetected(ingredients);
       
     } catch (err) {
@@ -183,7 +183,7 @@ const ImageUploadForm: React.FC<ImageUploadFormProps> = ({ onIngredientsDetected
   };
 
   const applyDetectedFoods = () => {
-    const ingredients = detectedFoods.map(item => item.name);
+    const ingredients = detectedFoods.map(item => `${item.count} ${item.name}`);
     onIngredientsDetected(ingredients);
   };
 

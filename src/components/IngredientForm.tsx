@@ -4,12 +4,14 @@ import ImageUploadForm from './ImageUploadForm';
 
 interface IngredientFormProps {
   onSubmit: (ingredients: string[]) => void;
+  initialMode?: 'manual' | 'image';
 }
 
-const IngredientForm: React.FC<IngredientFormProps> = ({ onSubmit }) => {
+const IngredientForm: React.FC<IngredientFormProps> = ({ onSubmit, initialMode = 'manual' }) => {
   const [ingredients, setIngredients] = useState<string[]>([]);
   const [currentIngredient, setCurrentIngredient] = useState('');
-  const [inputMode, setInputMode] = useState<'manual' | 'image'>('manual');
+  const [inputMode, setInputMode] = useState<'manual' | 'image'>(initialMode);
+  const [imageProvided, setImageProvided] = useState(false);
 
   const handleAddIngredient = () => {
     if (currentIngredient.trim()) {
@@ -51,6 +53,7 @@ const IngredientForm: React.FC<IngredientFormProps> = ({ onSubmit }) => {
       }
     });
     setIngredients(newIngredients);
+    setImageProvided(true);
   };
 
   return (
@@ -67,6 +70,7 @@ const IngredientForm: React.FC<IngredientFormProps> = ({ onSubmit }) => {
               ? 'bg-cookify-blue text-white'
               : 'text-gray-400 hover:text-white'
           }`}
+          disabled={!imageProvided}
         >
           <Type size={16} className="mr-2" />
           Manual Input
@@ -139,7 +143,7 @@ const IngredientForm: React.FC<IngredientFormProps> = ({ onSubmit }) => {
           <button 
             type="submit" 
             className="w-full py-3 rounded-lg bg-cookify-blue text-white font-medium hover:bg-blue-600 transition-colors"
-            disabled={ingredients.length === 0 && !currentIngredient.trim()}
+            disabled={!imageProvided}
           >
             Find Recipes
           </button>
@@ -180,7 +184,7 @@ const IngredientForm: React.FC<IngredientFormProps> = ({ onSubmit }) => {
                 type="button"
                 onClick={() => onSubmit(ingredients)}
                 className="w-full py-3 rounded-lg bg-cookify-blue text-white font-medium hover:bg-blue-600 transition-colors"
-                disabled={ingredients.length === 0}
+                disabled={!imageProvided}
               >
                 Find Recipes
               </button>

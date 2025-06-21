@@ -272,3 +272,52 @@ Respond in this exact JSON format:
     };
   }
 }
+
+export interface SimpleRecipe {
+  title: string;
+  ingredients: string[];
+  macros: {
+    calories: number;
+    protein: number;
+    carbs: number;
+    fat: number;
+  };
+}
+
+export async function generateRecipesWithIngredients(
+  macros: MacroNutrients,
+  ingredients: string[],
+): Promise<SimpleRecipe[]> {
+  const ingredientList = ingredients.join(', ');
+  const macroString = Object.entries(macros)
+    .filter(([_, v]) => v !== undefined)
+    .map(([k, v]) => `${k}: ${v}`)
+    .join(', ');
+
+  const prompt = `You are an expert chef and nutritionist. Using ONLY these ingredients (with amounts): ${ingredientList}. Create EXACTLY 3 recipe ideas that satisfy these macros: ${macroString}. Return ONLY valid JSON in this format (no markdown):\n[ {\n  "title": "...",\n  "ingredients": ["item 1", "item 2"],\n  "macros": { "calories": 0, "protein": 0, "carbs": 0, "fat": 0 }\n}, ... ]`;
+
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${OPENAI_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: 'Return only the recipes list. No explanations.' },
+        { role: 'user', content: prompt },
+      ],
+      temperature: 0.7,
+    }),
+  });
+
+  if (!response.ok) throw new Error('OpenAI error');
+  const data = await response.json();
+  const content: string = data.choices[0].message.content;
+  // attempt to parse JSON
+  const firstBracket = content.indexOf('[');
+  const lastBracket = content.lastIndexOf(']');
+  const jsonStr = firstBracket >= 0 ? content.slice(firstBracket, lastBracket + 1) : '[]';
+  return JSON.parse(jsonStr);
+}
