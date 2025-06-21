@@ -1,4 +1,4 @@
-const OPENAI_API_KEY = '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';
+export const OPENAI_API_KEY = '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';
 
 export interface GPTMessage {
   role: 'system' | 'user' | 'assistant';

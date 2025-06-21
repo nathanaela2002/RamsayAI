@@ -6,6 +6,8 @@
 // - Clarifai Food Detection
 // - Or any custom ML model
 
+import { OPENAI_API_KEY } from '@/lib/openai';
+
 export interface DetectedFood {
   name: string;
   count: number;
@@ -105,59 +107,118 @@ const FOOD_DATABASE = {
   soy_sauce: { category: FOOD_CATEGORIES.CONDIMENTS, aliases: ['soy sauce'] },
 } as const;
 
-// Mock food detection function
-// Replace this with actual API calls to computer vision services
-export const detectFoodItems = async (base64Image: string): Promise<FoodDetectionResult> => {
+// Utility: map food name to category using the FOOD_DATABASE or default
+const categorizeFood = (name: string): string => {
+  const key = name.toLowerCase().replace(/\s+/g, '_');
+  const entry = (FOOD_DATABASE as Record<string, { category: string }>)[key];
+  return entry ? entry.category : 'unknown';
+};
+
+// -----------------------------------------------------------------------------
+// OpenAI Vision integration
+// -----------------------------------------------------------------------------
+export const detectFoodWithOpenAI = async (base64Image: string): Promise<FoodDetectionResult> => {
   const startTime = Date.now();
-  
-  // Simulate API processing time
-  await new Promise(resolve => setTimeout(resolve, 1500 + Math.random() * 1000));
-  
-  // Generate random detected foods based on common items
+
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        temperature: 0,
+        messages: [
+          {
+            role: 'system',
+            content: `You are a vision model that identifies food items in refrigerator or pantry photos. Return ONLY valid JSON with this exact schema:\n{\n  "foods": [\n    {"name": string, "count": number, "confidence": number}\n  ]\n}`,
+          },
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'text',
+                text: 'Identify each distinct food ingredient in this image. Estimate the item count for each where reasonable (e.g., number of apples). Provide your best confidence (0-1). Respond ONLY with the JSON schema described earlier.',
+              },
+              {
+                type: 'image_url',
+                image_url: {
+                  url: `data:image/png;base64,${base64Image}`,
+                },
+              },
+            ],
+          },
+        ],
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`OpenAI error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const aiContent = data.choices?.[0]?.message?.content || '{}';
+
+    // Extract first JSON object from the response
+    const jsonMatch = aiContent.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new Error('No JSON found in OpenAI response');
+    }
+
+    const parsed = JSON.parse(jsonMatch[0]);
+    const detectedFoods: DetectedFood[] = (parsed.foods || []).map((item: any) => ({
+      name: item.name?.toLowerCase() || 'unknown',
+      count: typeof item.count === 'number' ? item.count : 1,
+      confidence: typeof item.confidence === 'number' ? item.confidence : 0.7,
+      category: categorizeFood(item.name || ''),
+    }));
+
+    return {
+      foods: detectedFoods,
+      processingTime: Date.now() - startTime,
+      imageSize: { width: 0, height: 0 },
+    };
+  } catch (error) {
+    console.error('[OpenAI Vision] fallback to mock detection:', error);
+    // Fallback to mock implementation
+    return mockDetectFoodItems(base64Image);
+  }
+};
+
+// Preserve existing mock implementation under new name for fallback
+const mockDetectFoodItems = async (base64Image: string): Promise<FoodDetectionResult> => {
+  const startTime = Date.now();
   const possibleFoods = Object.keys(FOOD_DATABASE);
   const numDetections = Math.floor(Math.random() * 8) + 3; // 3-10 items
   const detectedFoods: DetectedFood[] = [];
-  
   const usedFoods = new Set<string>();
-  
+
   for (let i = 0; i < numDetections; i++) {
     let foodKey: string;
     do {
       foodKey = possibleFoods[Math.floor(Math.random() * possibleFoods.length)];
     } while (usedFoods.has(foodKey));
-    
+
     usedFoods.add(foodKey);
-    
+
     const foodInfo = FOOD_DATABASE[foodKey as keyof typeof FOOD_DATABASE];
     const count = Math.floor(Math.random() * 5) + 1; // 1-5 items
     const confidence = 0.7 + Math.random() * 0.25; // 70-95% confidence
-    
+
     detectedFoods.push({
       name: foodKey.replace('_', ' '),
       count,
       confidence,
       category: foodInfo.category,
-      boundingBox: {
-        x: Math.random() * 0.8,
-        y: Math.random() * 0.8,
-        width: 0.1 + Math.random() * 0.2,
-        height: 0.1 + Math.random() * 0.2,
-      },
     });
   }
-  
-  // Sort by confidence (highest first)
-  detectedFoods.sort((a, b) => b.confidence - a.confidence);
-  
-  const processingTime = Date.now() - startTime;
-  
+
   return {
-    foods: detectedFoods,
-    processingTime,
-    imageSize: {
-      width: 1920,
-      height: 1080,
-    },
+    foods: detectedFoods.sort((a, b) => b.confidence - a.confidence),
+    processingTime: Date.now() - startTime,
+    imageSize: { width: 1920, height: 1080 },
   };
 };
 
@@ -265,4 +326,6 @@ export const detectFoodWithAWSRekognition = async (base64Image: string): Promise
   
   // For now, fall back to mock implementation
   return detectFoodItems(base64Image);
-}; 
+};
+
+export const detectFoodItems = detectFoodWithOpenAI; 
