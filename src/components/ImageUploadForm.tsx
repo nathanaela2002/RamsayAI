@@ -64,13 +64,16 @@ const ImageUploadForm: React.FC<ImageUploadFormProps> = ({ onIngredientsDetected
   const snapPhoto = () => {
     if (!videoRef.current) return;
     const video = videoRef.current;
+    const targetW = 640;
+    const scale = targetW / video.videoWidth;
+    const targetH = video.videoHeight * scale;
     const canvas = document.createElement('canvas');
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+    canvas.width = targetW;
+    canvas.height = targetH;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    const dataUrl = canvas.toDataURL('image/png');
+    ctx.drawImage(video, 0, 0, targetW, targetH);
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
     setCapturedUrl(dataUrl);
     closeCamera();
   };
