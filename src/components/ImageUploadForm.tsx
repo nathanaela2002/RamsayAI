@@ -20,7 +20,6 @@ const ImageUploadForm: React.FC<ImageUploadFormProps> = ({ onIngredientsDetected
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [videoStream, setVideoStream] = useState<MediaStream | null>(null);
-  const [capturedUrl, setCapturedUrl] = useState<string | null>(null);
 
   const handleFileSelect = (file: File) => {
     if (file && file.type.startsWith('image/')) {
@@ -73,29 +72,16 @@ const ImageUploadForm: React.FC<ImageUploadFormProps> = ({ onIngredientsDetected
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     ctx.drawImage(video, 0, 0, targetW, targetH);
-    const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-    setCapturedUrl(dataUrl);
+
+    // Convert the canvas image directly into a File object, so we can
+    // reuse the same file-handling flow as a regular upload.
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+      const file = new File([blob], 'captured.jpg', { type: 'image/jpeg' });
+      handleFileSelect(file);
+    }, 'image/jpeg', 0.8);
+
     closeCamera();
-  };
-
-  const approvePhoto = () => {
-    if (!capturedUrl) return;
-    // Convert dataURL to File for downstream logic
-    const arr = capturedUrl.split(',');
-    const mimeMatch = arr[0].match(/:(.*?);/);
-    const mime = mimeMatch ? mimeMatch[1] : 'image/png';
-    const bstr = atob(arr[1]);
-    let n = bstr.length;
-    const u8arr = new Uint8Array(n);
-    while (n--) u8arr[n] = bstr.charCodeAt(n);
-    const file = new File([u8arr], 'captured.png', { type: mime });
-    handleFileSelect(file);
-    setCapturedUrl(null);
-  };
-
-  const retakePhoto = () => {
-    setCapturedUrl(null);
-    openCamera();
   };
 
   // attach stream to video element
@@ -216,34 +202,6 @@ const ImageUploadForm: React.FC<ImageUploadFormProps> = ({ onIngredientsDetected
               >
                 Snap Photo
               </Button>
-            </div>
-          ) : capturedUrl ? (
-            /* -------------------- Captured photo preview ------------------ */
-            <div className="space-y-4">
-              <div className="relative">
-                <img
-                  src={capturedUrl}
-                  alt="Captured"
-                  className="w-full h-64 object-cover rounded-lg"
-                />
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  type="button"
-                  onClick={approvePhoto}
-                  className="flex-1 bg-cookify-blue text-white hover:bg-blue-600"
-                >
-                  Approve
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={retakePhoto}
-                  className="flex-1 border-cookify-blue text-white hover:bg-cookify-blue"
-                >
-                  Retake
-                </Button>
-              </div>
             </div>
           ) : previewUrl ? (
             <div className="space-y-4">

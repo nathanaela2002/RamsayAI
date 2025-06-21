@@ -17,6 +17,10 @@ const MacrosPage = () => {
   const [step, setStep] = useState<'ingredients' | 'macros' | 'results'>('ingredients');
   const [selectedIngredients, setSelectedIngredients] = useState<string[]>([]);
   const [selectedMealType, setSelectedMealType] = useState('');
+  const [commentModal, setCommentModal] = useState(false);
+  const [commentText, setCommentText] = useState('');
+  const [preferences, setPreferences] = useState('');
+  const [lastMacros, setLastMacros] = useState<any>(null);
 
   const handleBack = () => {
     navigate(-1);
@@ -41,6 +45,7 @@ const MacrosPage = () => {
       };
       const aiResponse = await generateRecipesWithIngredients(macros, selectedIngredients);
       setRecipes(aiResponse);
+      setLastMacros(macros);
       setSearchQuery('AI Recipes');
       setStep('results');
     } catch (error) {
@@ -49,6 +54,21 @@ const MacrosPage = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRegenerate = async () => {
+    if (!lastMacros) return;
+    try {
+      setLoading(true);
+      const newPref = preferences ? `${preferences}. ${commentText}` : commentText;
+      const aiResp = await generateRecipesWithIngredients(lastMacros, selectedIngredients, newPref);
+      setRecipes(aiResp);
+      setPreferences(newPref);
+      setCommentModal(false);
+      setCommentText('');
+    } catch (e) {
+      showErrorToast('Failed to regenerate');
+    } finally { setLoading(false); }
   };
 
   return (
@@ -90,20 +110,38 @@ const MacrosPage = () => {
         {loading ? (
           <p className="text-center mt-8 text-gray-400">Generating recipes...</p>
         ) : step === 'results' && recipes.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {recipes.map((recipe, idx) => (
-              <RecipeCard
-                key={idx}
-                id={idx}
-                title={recipe.title}
-                image={`https://source.unsplash.com/400x300/?food&sig=${idx}`}
-                useAIImage={true}
-                favorite={false}
-                macros={recipe.macros}
-                ingredients={recipe.ingredients}
-              />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+              {recipes.map((r, idx) => (
+                <div key={idx} className="bg-cookify-darkgray rounded-xl overflow-hidden">
+                  <RecipeCard
+                    id={idx}
+                    title={r.title}
+                    image={`https://source.unsplash.com/400x300/?food&sig=${idx}`}
+                    useAIImage={true}
+                    favorite={false}
+                    macros={r.macros}
+                    ingredients={r.ingredients}
+                  />
+                </div>
+              ))}
+            </div>
+            <div className="text-center mt-6">
+              <button onClick={() => setCommentModal(true)} className="text-cookify-blue underline">Don't see what you like?</button>
+            </div>
+            {commentModal && (
+              <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+                <div className="bg-cookify-darkgray p-6 rounded-lg w-80">
+                  <h3 className="text-lg font-semibold text-white mb-4">Add comments</h3>
+                  <textarea value={commentText} onChange={e=>setCommentText(e.target.value)} rows={4} className="w-full p-2 rounded bg-cookify-lightgray text-white mb-4" />
+                  <div className="flex justify-end gap-3">
+                    <button onClick={()=>{setCommentModal(false);setCommentText('')}} className="px-3 py-1 text-gray-300">Cancel</button>
+                    <button onClick={handleRegenerate} disabled={!commentText.trim()} className="px-3 py-1 bg-cookify-blue text-white rounded disabled:opacity-50">Regenerate</button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
         ) : step === 'results' && searchQuery ? (
           <div className="text-center py-12">
             <h3 className="text-xl font-semibold mb-2">No recipes found</h3>

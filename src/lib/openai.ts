@@ -287,6 +287,7 @@ export interface SimpleRecipe {
 export async function generateRecipesWithIngredients(
   macros: MacroNutrients,
   ingredients: string[],
+  extraPreference?: string,
 ): Promise<SimpleRecipe[]> {
   const ingredientList = ingredients.join(', ');
   const macroString = Object.entries(macros)
@@ -294,7 +295,8 @@ export async function generateRecipesWithIngredients(
     .map(([k, v]) => `${k}: ${v}`)
     .join(', ');
 
-  const prompt = `You are an expert chef and nutritionist. Using ONLY these ingredients (with amounts): ${ingredientList}. Create EXACTLY 3 recipe ideas that satisfy these macros: ${macroString}. Return ONLY valid JSON in this format (no markdown):\n[ {\n  "title": "...",\n  "ingredients": ["item 1", "item 2"],\n  "macros": { "calories": 0, "protein": 0, "carbs": 0, "fat": 0 }\n}, ... ]`;
+  const preferenceText = extraPreference ? ` Also, consider these user preferences: ${extraPreference}.` : '';
+  const prompt = `You are an expert chef and nutritionist. Using ONLY these ingredients (with amounts): ${ingredientList}. Create EXACTLY 3 recipe ideas that satisfy these macros: ${macroString}.${preferenceText} Return ONLY valid JSON in this format (no markdown):\n[ {\n  "title": "...",\n  "ingredients": ["item 1", "item 2"],\n  "macros": { "calories": 0, "protein": 0, "carbs": 0, "fat": 0 }\n}, ... ]`;
 
   const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
