@@ -1,10 +1,10 @@
-# 🍳 Cookify - AI-Powered Smart Meal Planner
+# 🍳 Ramsay AI - AI-Powered Smart Meal Planner
 
-> *"There's nothing to eat"* - We've all been there. Staring at a packed fridge or pantry and still thinking there's nothing to cook. Cookify eliminates this everyday problem using AI to transform your kitchen inventory into delicious meal possibilities.
+> *"There's nothing to eat"* - We've all been there. Staring at a packed fridge or pantry and still thinking there's nothing to cook. Ramsay AI eliminates this everyday problem using AI to transform your kitchen inventory into delicious meal possibilities.
 
 ## 🌟 What We Built
 
-Cookify is a smart, AI-powered meal planner that revolutionizes how you think about cooking. Users can:
+Ramsay AI is a smart, AI-powered meal planner that revolutionizes how you think about cooking. Users can:
 
 - **📸 Snap & Scan**: Take a photo of their pantry or fridge
 - **🤖 AI Detection**: Let AI detect ingredients and count what's available
@@ -205,4 +205,4 @@ We welcome contributions! Please feel free to submit issues, feature requests, o
 
 **Built with ❤️ for everyone who's ever stared at a full fridge and thought "there's nothing to eat"**
 
-*Cookify - Where AI meets your kitchen*
+*Ramsay AI - Where AI meets your kitchen*
