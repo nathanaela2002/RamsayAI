@@ -4,16 +4,19 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { detectFoodItems, DetectedFood } from '@/lib/foodDetection';
+import { getGPTResponse } from '@/lib/openai';
 
 interface ImageUploadFormProps {
   onIngredientsDetected: (ingredients: string[]) => void;
 }
 
+type FoodItem = DetectedFood & { unit: 'count' | 'grams' };
+
 const ImageUploadForm: React.FC<ImageUploadFormProps> = ({ onIngredientsDetected }) => {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [detectedFoods, setDetectedFoods] = useState<DetectedFood[]>([]);
+  const [detectedFoods, setDetectedFoods] = useState<FoodItem[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -147,17 +150,52 @@ const ImageUploadForm: React.FC<ImageUploadFormProps> = ({ onIngredientsDetected
         return;
       }
 
-      setDetectedFoods(result.foods);
+      // Ask OpenAI which unit fits each ingredient
+      const names = Array.from(new Set(result.foods.map(f=>f.name)));
+      let unitMap: Record<string,'count'|'grams'> = {};
+      try {
+        const prompt = `For the following ingredients decide whether they are more commonly measured by item count (qty) or by weight in grams. Respond ONLY with valid JSON like {"apple":"count","rice":"grams"}.  Ingredients: ${names.join(', ')}`;
+        const resp = await getGPTResponse([
+          {role:'system',content:'You output only JSON.'},
+          {role:'user',content:prompt}
+        ]);
+        unitMap = JSON.parse(resp);
+      } catch{}
+
+      /* ------------------------------------------------------------
+         🏋️‍♂️  Ask OpenAI to estimate reasonable gram weights
+         for ingredients that should be measured in grams.
+      ------------------------------------------------------------ */
+      let weightMap: Record<string, number> = {};
+      const gramIngredients = names.filter((n)=>unitMap[n]==='grams');
+      if(gramIngredients.length>0){
+        try{
+          const weightPrompt = `Estimate a realistic single-serving weight in grams for each of these ingredients. Respond ONLY with valid JSON like {"rice":120,"flour":200}. Ingredients: ${gramIngredients.join(', ')}`;
+          const weightResp = await getGPTResponse([
+            {role:'system',content:'Respond only with JSON mapping ingredient to grams as numbers.'},
+            {role:'user',content:weightPrompt}
+          ]);
+          weightMap = JSON.parse(weightResp);
+        }catch{/* fallback to defaults if parsing fails */}
+      }
+
+      const foodsWithUnit = result.foods.map(f => {
+        const unit = unitMap[f.name] ?? 'count';
+        // If unit is grams, use estimated weight or fallback to detected count
+        const count = unit==='grams' ? (weightMap[f.name] ?? f.count ?? 100) : f.count;
+        return { ...f, unit, count } as FoodItem;
+      });
+      setDetectedFoods(foodsWithUnit);
       
       // Prevent sending if any ingredient is unnamed
-      const unnamed = result.foods.find(f => !f.name.trim());
+      const unnamed = foodsWithUnit.find(f => !f.name.trim());
       if (unnamed) {
         setError('Please name all ingredients before continuing.');
         return;
       }
 
-      // Convert detected foods to ingredients list
-      const ingredients = result.foods.map(item => `${item.count} ${item.name}`);
+      // Convert detected foods to ingredients list (grams vs qty)
+      const ingredients = foodsWithUnit.map(item => item.unit==='grams' ? `${item.count}g ${item.name}` : `${item.count} ${item.name}`);
       onIngredientsDetected(ingredients);
       
     } catch (err) {
@@ -206,12 +244,13 @@ const ImageUploadForm: React.FC<ImageUploadFormProps> = ({ onIngredientsDetected
 
   // Add an empty ingredient placeholder (count 1) and focus it for editing
   const addEmptyIngredient = () => {
-    const newFood: DetectedFood = {
+    const newFood: FoodItem = {
       name: '',
       count: 1,
       confidence: 1,
       category: 'manual',
-    } as DetectedFood;
+      unit: 'count',
+    } as FoodItem;
     setDetectedFoods(prev => [...prev, newFood]);
     setEditingIndex(detectedFoods.length); // focus the new entry
   };
@@ -222,9 +261,18 @@ const ImageUploadForm: React.FC<ImageUploadFormProps> = ({ onIngredientsDetected
     const allNamed = detectedFoods.every(f => f.name.trim());
     if (!allNamed) return; // wait until all are named
 
-    const ingredients = detectedFoods.map(item => `${item.count} ${item.name}`);
+    const ingredients = detectedFoods.map(item => item.unit==='grams' ? `${item.count}g ${item.name}` : `${item.count} ${item.name}`);
     onIngredientsDetected(ingredients);
   }, [detectedFoods, onIngredientsDetected]);
+
+  const toggleUnit = (index:number) => {
+    setDetectedFoods(prev => prev.map((f,i)=> i===index? { ...f, unit: f.unit==='count'?'grams':'count'}:f));
+  };
+
+  const handleCountChange = (index:number, value:number) => {
+    if(value<0) return;
+    setDetectedFoods(prev=> prev.map((f,i)=> i===index? { ...f, count:value }:f));
+  };
 
   return (
     <div className="space-y-4">
@@ -420,39 +468,49 @@ const ImageUploadForm: React.FC<ImageUploadFormProps> = ({ onIngredientsDetected
                   </div>
                   
                   <div className="flex items-center space-x-2">
-                    <div className="flex items-center space-x-1">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => updateFoodCount(index, food.count - 1)}
-                        className="h-8 w-8 p-0 bg-cookify-lightgray border-cookify-blue text-white hover:bg-cookify-blue"
-                      >
-                        -
-                      </Button>
-                      <span className="text-white font-medium min-w-[2rem] text-center">
-                        {food.count}
-                      </span>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => updateFoodCount(index, food.count + 1)}
-                        className="h-8 w-8 p-0 bg-cookify-lightgray border-cookify-blue text-white hover:bg-cookify-blue"
-                      >
-                        +
-                      </Button>
-                    </div>
-                    
-                    <Button
+                    {food.unit==='count' && (
+                      <>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => updateFoodCount(index, food.count - 1)}
+                          className="h-8 w-8 p-0 bg-cookify-lightgray border-cookify-blue text-white hover:bg-cookify-blue"
+                        >-
+                        </Button>
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          value={food.count}
+                          onChange={e=>handleCountChange(index, parseInt(e.target.value)||0)}
+                          className="w-16 text-center bg-transparent border-b-2 border-transparent focus:border-cookify-blue text-white focus:outline-none"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => updateFoodCount(index, food.count + 1)}
+                          className="h-8 w-8 p-0 bg-cookify-lightgray border-cookify-blue text-white hover:bg-cookify-blue"
+                        >+
+                        </Button>
+                      </>
+                    )}
+                    {food.unit==='grams' && (
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        value={food.count}
+                        onChange={e=>handleCountChange(index, parseInt(e.target.value)||0)}
+                        className="w-20 text-center bg-transparent border-b-2 border-transparent focus:border-cookify-blue text-white focus:outline-none"
+                      />
+                    )}
+                    <button
                       type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => removeFoodItem(index)}
-                      className="h-8 w-8 p-0 bg-red-600 border-red-600 text-white hover:bg-red-700"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
+                      onClick={() => toggleUnit(index)}
+                      className="text-xs text-green-600 hover:underline min-w-[2.5rem]"
+                    >{food.unit==='grams'?'g':'qty'}</button>
                   </div>
                 </div>
               ))}
