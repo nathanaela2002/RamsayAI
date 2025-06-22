@@ -78,10 +78,10 @@ const Index = () => {
           <img
             src="/assets/food-guide.png"
             alt="Food guide"
-            className="mx-auto w-48 md:w-72 mb-6"
+            className="mx-auto w-60 md:w-96 mb-8 drop-shadow-lg"
           />
 
-          <p className="text-sm text-orange-500 mb-2">Unlimited recipes at your fingertips</p>
+          <span className="inline-block px-5 py-1.5 mb-6 rounded-full bg-gray-100 border border-gray-300 text-orange-500 text-base shadow-sm">Unlimited recipes at your fingertips</span>
           <h1 className="text-5xl md:text-6xl font-bold mb-6">Start Cooking</h1>
 
           <div className="flex justify-center gap-4 mb-8">
