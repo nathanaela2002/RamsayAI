@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { Search } from 'lucide-react';
-import { ArrowRight } from 'lucide-react';
+import { Search, ArrowRight } from 'lucide-react';
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
@@ -39,9 +38,9 @@ const SearchBar: React.FC<SearchBarProps> = ({
         />
         <button
           type="submit"
-          className="absolute right-2 top-1/2 -translate-y-1/2 bg-primary text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-primary/90 transition-colors"
+          className="absolute right-3 top-1/2 -translate-y-1/2 bg-primary text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-primary/90 transition-colors"
         >
-          <ArrowRight size={16} className="text-white" />
+          <ArrowRight size={18} color="white" />
         </button>
       </div>
     </form>

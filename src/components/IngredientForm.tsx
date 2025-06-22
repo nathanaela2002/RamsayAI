@@ -50,14 +50,9 @@ const IngredientForm: React.FC<IngredientFormProps> = ({ onSubmit, initialMode =
   };
 
   const handleIngredientsDetected = (detectedIngredients: string[]) => {
-    // Add detected ingredients to the current list, avoiding duplicates
-    const newIngredients = [...ingredients];
-    detectedIngredients.forEach(ingredient => {
-      if (!newIngredients.includes(ingredient.toLowerCase())) {
-        newIngredients.push(ingredient.toLowerCase());
-      }
-    });
-    setIngredients(newIngredients);
+    // Replace the list with the latest detected ingredients, ensuring uniqueness
+    const unique = Array.from(new Set(detectedIngredients.map(i => i.toLowerCase())));
+    setIngredients(unique);
     setImageProvided(true);
   };
 
@@ -104,7 +99,7 @@ const IngredientForm: React.FC<IngredientFormProps> = ({ onSubmit, initialMode =
           
           <button 
             type="submit" 
-            className="w-full py-3 rounded-lg bg-cookify-blue text-white font-medium hover:bg-blue-600 transition-colors"
+            className="px-6 py-4 rounded-lg bg-cookify-blue text-white font-medium hover:bg-blue-600 transition-colors"
             disabled={ingredients.length === 0}
           >
             Find Recipes
@@ -119,7 +114,7 @@ const IngredientForm: React.FC<IngredientFormProps> = ({ onSubmit, initialMode =
               <button
                 type="button"
                 onClick={() => onSubmit(ingredients)}
-                className="w-full py-3 rounded-lg bg-cookify-blue text-white font-medium hover:bg-blue-600 transition-colors"
+                className="px-6 py-4 rounded-lg bg-cookify-blue text-white font-medium hover:bg-blue-600 transition-colors"
               >
                 Find Recipes
               </button>

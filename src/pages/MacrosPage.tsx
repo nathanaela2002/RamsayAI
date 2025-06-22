@@ -79,16 +79,16 @@ const MacrosPage = () => {
 
   return (
     <Layout>
-      <div className="max-w-screen-lg mx-auto">
+      <div className="max-w-screen-xl mx-auto px-6 py-8">
         <div className="mb-6">
           <button
             onClick={handleBack}
-            className="flex items-center text-primary hover:underline mb-2"
+            className="flex items-center text-primary hover:underline mb-2 rounded-full"
           >
             <ArrowLeft size={18} className="mr-1" />
             Back
           </button>
-          <h1 className="text-2xl font-bold">Find Your Recipe</h1>
+          <h1 className="text-3xl md:text-4xl font-bold">Find Your Recipe</h1>
         </div>
         
         {step === 'ingredients' && (
@@ -131,7 +131,7 @@ const MacrosPage = () => {
               ))}
             </div>
             <div className="text-center mt-6">
-              <button onClick={() => setCommentModal(true)} className="text-cookify-blue underline">Don't see what you like?</button>
+              <button onClick={() => setCommentModal(true)} className="text-cookify-blue underline rounded-full px-3 py-1">Don't see what you like?</button>
             </div>
             {commentModal && (
               <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
@@ -139,8 +139,8 @@ const MacrosPage = () => {
                   <h3 className="text-lg font-semibold text-white mb-4">Add comments</h3>
                   <textarea value={commentText} onChange={e=>setCommentText(e.target.value)} rows={4} className="w-full p-2 rounded bg-cookify-lightgray text-white mb-4" />
                   <div className="flex justify-end gap-3">
-                    <button onClick={()=>{setCommentModal(false);setCommentText('')}} className="px-3 py-1 text-gray-300">Cancel</button>
-                    <button onClick={handleRegenerate} disabled={!commentText.trim()} className="px-3 py-1 bg-cookify-blue text-white rounded disabled:opacity-50">Regenerate</button>
+                    <button onClick={()=>{setCommentModal(false);setCommentText('')}} className="px-3 py-1 text-gray-300 rounded-full">Cancel</button>
+                    <button onClick={handleRegenerate} disabled={!commentText.trim()} className="px-3 py-1 bg-cookify-blue text-white rounded-full disabled:opacity-50">Regenerate</button>
                   </div>
                 </div>
               </div>

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Upload, Camera, X, Loader2, CheckCircle } from 'lucide-react';
+import { Upload, Camera, X, Loader2, CheckCircle, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -15,14 +15,12 @@ const ImageUploadForm: React.FC<ImageUploadFormProps> = ({ onIngredientsDetected
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [detectedFoods, setDetectedFoods] = useState<DetectedFood[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   // Camera stream refs / state
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [videoStream, setVideoStream] = useState<MediaStream | null>(null);
-  const [showManualAdd, setShowManualAdd] = useState(false);
-  const [manualName, setManualName] = useState('');
-  const [manualCount, setManualCount] = useState('1');
 
   useEffect(() => {
     // auto start camera on mount
@@ -151,6 +149,13 @@ const ImageUploadForm: React.FC<ImageUploadFormProps> = ({ onIngredientsDetected
 
       setDetectedFoods(result.foods);
       
+      // Prevent sending if any ingredient is unnamed
+      const unnamed = result.foods.find(f => !f.name.trim());
+      if (unnamed) {
+        setError('Please name all ingredients before continuing.');
+        return;
+      }
+
       // Convert detected foods to ingredients list
       const ingredients = result.foods.map(item => `${item.count} ${item.name}`);
       onIngredientsDetected(ingredients);
@@ -191,32 +196,35 @@ const ImageUploadForm: React.FC<ImageUploadFormProps> = ({ onIngredientsDetected
     setDetectedFoods(prev => prev.filter((_, i) => i !== index));
   };
 
-  const applyDetectedFoods = () => {
-    const ingredients = detectedFoods.map(item => `${item.count} ${item.name}`);
-    onIngredientsDetected(ingredients);
+  const updateFoodName = (index: number, newName: string) => {
+    setDetectedFoods(prev =>
+      prev.map((food, i) =>
+        i === index ? { ...food, name: newName.toLowerCase() } : food
+      )
+    );
   };
 
-  const handleAddManualFood = () => {
-    if (!manualName.trim()) return;
-    const cnt = parseInt(manualCount) > 0 ? parseInt(manualCount) : 1;
-    const manualFood = {
-      name: manualName.trim().toLowerCase(),
-      count: cnt,
+  // Add an empty ingredient placeholder (count 1) and focus it for editing
+  const addEmptyIngredient = () => {
+    const newFood: DetectedFood = {
+      name: '',
+      count: 1,
       confidence: 1,
       category: 'manual',
     } as DetectedFood;
-    setDetectedFoods(prev => [...prev, manualFood]);
-    setManualName('');
-    setManualCount('1');
-    setShowManualAdd(false);
+    setDetectedFoods(prev => [...prev, newFood]);
+    setEditingIndex(detectedFoods.length); // focus the new entry
   };
 
-  const handleManualKey = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleAddManualFood();
-    }
-  };
+  // Whenever the detectedFoods state changes, send the latest list (if all names filled)
+  useEffect(() => {
+    if (detectedFoods.length === 0) return;
+    const allNamed = detectedFoods.every(f => f.name.trim());
+    if (!allNamed) return; // wait until all are named
+
+    const ingredients = detectedFoods.map(item => `${item.count} ${item.name}`);
+    onIngredientsDetected(ingredients);
+  }, [detectedFoods, onIngredientsDetected]);
 
   return (
     <div className="space-y-4">
@@ -252,7 +260,7 @@ const ImageUploadForm: React.FC<ImageUploadFormProps> = ({ onIngredientsDetected
                 variant="outline"
                 size="sm"
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full bg-cookify-lightgray border-cookify-blue text-white hover:bg-cookify-blue"
+                className="px-6 py-4 bg-cookify-lightgray border-cookify-blue text-white hover:bg-cookify-blue"
               >
                 <Upload className="h-4 w-4 mr-2" />
                 Upload Image
@@ -281,7 +289,7 @@ const ImageUploadForm: React.FC<ImageUploadFormProps> = ({ onIngredientsDetected
                 type="button"
                 onClick={analyzeImage}
                 disabled={isAnalyzing}
-                className="w-full bg-cookify-blue text-white hover:bg-blue-600"
+                className="px-6 py-4 bg-cookify-blue text-white hover:bg-blue-600"
               >
                 {isAnalyzing ? (
                   <>
@@ -314,7 +322,7 @@ const ImageUploadForm: React.FC<ImageUploadFormProps> = ({ onIngredientsDetected
                     e.stopPropagation();
                     fileInputRef.current?.click();
                   }}
-                  className="bg-cookify-lightgray border-cookify-blue text-white hover:bg-cookify-blue"
+                  className="px-6 py-4 bg-cookify-lightgray border-cookify-blue text-white hover:bg-cookify-blue"
                 >
                   <Upload className="h-4 w-4 mr-2" />
                   Upload Image
@@ -327,7 +335,7 @@ const ImageUploadForm: React.FC<ImageUploadFormProps> = ({ onIngredientsDetected
                     e.stopPropagation();
                     openCamera();
                   }}
-                  className="bg-cookify-lightgray border-cookify-blue text-white hover:bg-cookify-blue"
+                  className="px-6 py-4 bg-cookify-lightgray border-cookify-blue text-white hover:bg-cookify-blue"
                 >
                   <Camera className="h-4 w-4 mr-2" />
                   Take Photo
@@ -364,10 +372,10 @@ const ImageUploadForm: React.FC<ImageUploadFormProps> = ({ onIngredientsDetected
               <div className="flex gap-2">
                 <Button
                   type="button"
-                  onClick={() => setShowManualAdd(p=>!p)}
+                  onClick={addEmptyIngredient}
                   variant="outline"
                   size="sm"
-                  className="bg-cookify-lightgray border-cookify-blue text-white hover:bg-cookify-blue"
+                  className="px-6 py-4 bg-cookify-lightgray border-cookify-blue text-white hover:bg-cookify-blue"
                 >
                   Add more ingredients
                 </Button>
@@ -375,30 +383,6 @@ const ImageUploadForm: React.FC<ImageUploadFormProps> = ({ onIngredientsDetected
               </div>
             </div>
             
-            {showManualAdd && (
-              <div className="flex items-center gap-2 mb-4">
-                <input
-                  type="text"
-                  value={manualName}
-                  onChange={e=>setManualName(e.target.value)}
-                  onKeyDown={handleManualKey}
-                  placeholder="Ingredient name"
-                  className="flex-1 p-2 rounded bg-cookify-lightgray text-white placeholder-gray-400 border-none"
-                />
-                <input
-                  type="number"
-                  min="1"
-                  value={manualCount}
-                  onChange={e=>setManualCount(e.target.value)}
-                  onKeyDown={handleManualKey}
-                  className="w-20 p-2 rounded bg-cookify-lightgray text-white border-none"
-                />
-                <Button type="button" onClick={handleAddManualFood} className="p-2 bg-cookify-blue text-white rounded">
-                  Add
-                </Button>
-              </div>
-            )}
-
             <div className="space-y-3">
               {detectedFoods.map((food, index) => (
                 <div
@@ -407,9 +391,31 @@ const ImageUploadForm: React.FC<ImageUploadFormProps> = ({ onIngredientsDetected
                 >
                   <div className="flex items-center space-x-3">
                     <div className="flex-1">
-                      <p className="text-white font-medium capitalize">
-                        {food.name}
-                      </p>
+                      {editingIndex === index ? (
+                        <input
+                          type="text"
+                          value={food.name}
+                          autoFocus
+                          onChange={e => updateFoodName(index, e.target.value)}
+                          onBlur={() => setEditingIndex(null)}
+                          onKeyDown={e => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              setEditingIndex(null);
+                            }
+                          }}
+                          className="w-full bg-transparent border-b border-cookify-blue outline-none text-white placeholder-gray-400 capitalize"
+                        />
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setEditingIndex(index)}
+                          className="flex items-center gap-1 text-white font-medium capitalize focus:outline-none"
+                        >
+                          {food.name}
+                          <Pencil className="h-4 w-4 text-gray-400" />
+                        </button>
+                      )}
                     </div>
                   </div>
                   

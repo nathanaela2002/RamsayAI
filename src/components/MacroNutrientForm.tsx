@@ -166,7 +166,7 @@ const MacroNutrientForm: React.FC<MacroNutrientFormProps> = ({ onSubmit, title =
           
           <button
             type="submit"
-            className="w-full py-3 px-6 rounded-lg bg-cookify-blue text-white font-medium hover:bg-blue-600 transition-colors"
+            className="px-6 py-4 rounded-lg bg-cookify-blue text-white font-medium hover:bg-blue-600 transition-colors"
           >
             {buttonLabel}
           </button>

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -11,7 +10,7 @@ const NotFound = () => {
         <p className="text-xl text-gray-400 mb-8">Oops! We couldn't find that recipe.</p>
         <Link 
           to="/"
-          className="px-6 py-3 bg-cookify-blue text-white rounded-lg hover:bg-blue-600 transition-colors"
+          className="px-8 py-4 bg-cookify-blue text-white rounded-lg hover:bg-blue-600 transition-colors"
         >
           Return to Home
         </Link>

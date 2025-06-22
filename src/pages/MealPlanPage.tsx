@@ -55,13 +55,13 @@ const MealPlanPage: React.FC = () => {
 
   return (
     <Layout>
-      <div className="max-w-screen-lg mx-auto">
+      <div className="max-w-screen-xl mx-auto px-6 py-8">
         <div className="mb-6">
-          <button onClick={handleBack} className="flex items-center text-primary hover:underline mb-2">
+          <button onClick={handleBack} className="flex items-center text-primary hover:underline mb-2 rounded-full">
             <ArrowLeft size={18} className="mr-1" />
             Back
           </button>
-          <h1 className="text-2xl font-bold">Build Your Meal Plan</h1>
+          <h1 className="text-3xl md:text-4xl font-bold">Build Your Meal Plan</h1>
         </div>
 
         {step === 'ingredients' && <IngredientForm onSubmit={handleIngredientSubmit} initialMode="image" />}
