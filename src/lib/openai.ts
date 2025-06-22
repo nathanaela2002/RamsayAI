@@ -336,7 +336,7 @@ export async function generateRecipeImage(recipeTitle: string): Promise<string> 
       },
       body: JSON.stringify({
         model: 'dall-e-3',
-        prompt: `A realistic, appetizing photograph of ${recipeTitle} on table in natural daylight. Light setting, realistic, centered subject and focused on the food, no text, neutral light background.`,
+        prompt: `A realistic, appetizing photograph of ${recipeTitle} on table in natural daylight. Light setting, realistic, centered, zoomed in subject and focused on the food, no text, neutral light background.`,
         n: 1,
         size: '1024x1024',
         quality: 'standard',
