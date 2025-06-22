@@ -90,9 +90,11 @@ const Index = () => {
                 Single Meal
               </Button>
             </Link>
-            <Button className="px-10 py-5 text-lg" variant="secondary">
-              Meal Plan
-            </Button>
+            <Link to="/meal-plan">
+              <Button className="px-10 py-5 text-lg" variant="secondary">
+                Meal Plan
+              </Button>
+            </Link>
           </div>
 
           {/* Search & Previous recipes section */}
@@ -124,7 +126,7 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Today's picks section */}
+          {/* Today's picks section 
           <div className="mb-16">
             <div className="flex items-center justify-between mb-4 px-2">
               <h2 className="text-lg font-semibold">Today's picks</h2>
@@ -145,7 +147,7 @@ const Index = () => {
                 />
               ))}
             </div>
-          </div>
+          </div> */}
 
         </div>
       </div>

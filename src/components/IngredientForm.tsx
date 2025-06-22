@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 import ImageUploadForm from './ImageUploadForm';
 
 interface IngredientFormProps {
@@ -12,6 +12,11 @@ const IngredientForm: React.FC<IngredientFormProps> = ({ onSubmit, initialMode =
   const [currentIngredient, setCurrentIngredient] = useState('');
   const [inputMode] = useState<'manual' | 'image'>(initialMode);
   const [imageProvided, setImageProvided] = useState(false);
+
+  // Quick manual-add option (hidden until button clicked)
+  const [showManual, setShowManual] = useState(false);
+  const [manualName, setManualName] = useState('');
+  const [manualAmt, setManualAmt] = useState('1');
 
   const handleAddIngredient = () => {
     if (currentIngredient.trim()) {
@@ -56,6 +61,21 @@ const IngredientForm: React.FC<IngredientFormProps> = ({ onSubmit, initialMode =
     setImageProvided(true);
   };
 
+  const handleAddManual = () => {
+    if (!manualName.trim()) return;
+    const amt = parseInt(manualAmt) > 0 ? parseInt(manualAmt) : 1;
+    setIngredients(prev => [...prev, `${amt} ${manualName.trim().toLowerCase()}`]);
+    setManualName('');
+    setManualAmt('1');
+  };
+
+  const handleManualKey = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddManual();
+    }
+  };
+
   return (
     <div className="bg-cookify-darkgray rounded-xl p-4 mb-6 animate-fade-in">
       {/* Camera mode only */}
@@ -93,16 +113,57 @@ const IngredientForm: React.FC<IngredientFormProps> = ({ onSubmit, initialMode =
       ) : (
         <div className="space-y-4">
           <ImageUploadForm onIngredientsDetected={handleIngredientsDetected} />
-          
-          {imageProvided && (
+
+          {ingredients.length > 0 && (
             <div className="pt-4">
-              <button 
+              <button
                 type="button"
                 onClick={() => onSubmit(ingredients)}
                 className="w-full py-3 rounded-lg bg-cookify-blue text-white font-medium hover:bg-blue-600 transition-colors"
               >
                 Find Recipes
               </button>
+            </div>
+          )}
+
+          {/* Add more ingredients */}
+          {ingredients.length > 0 && (
+            <div className="mt-4 space-y-2">
+              {!showManual ? (
+                <button
+                  type="button"
+                  onClick={() => setShowManual(true)}
+                  className="text-cookify-blue underline text-sm"
+                >
+                  Add more ingredients
+                </button>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={manualName}
+                    onChange={e=>setManualName(e.target.value)}
+                    onKeyDown={handleManualKey}
+                    placeholder="Ingredient"
+                    className="flex-1 p-2 rounded bg-cookify-lightgray text-white placeholder-gray-400 border-none"
+                  />
+                  <input
+                    type="number"
+                    min="1"
+                    value={manualAmt}
+                    onChange={e=>setManualAmt(e.target.value)}
+                    onKeyDown={handleManualKey}
+                    className="w-20 p-2 rounded bg-cookify-lightgray text-white border-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddManual}
+                    className="p-2 bg-cookify-blue text-white rounded"
+                  >
+                    Add
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>

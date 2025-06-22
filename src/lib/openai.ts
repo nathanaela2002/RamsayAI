@@ -397,3 +397,96 @@ export async function generateRandomRecipes(count = 3): Promise<AIRecipe[]> {
     return [];
   }
 }
+
+// -------------------------- Meal plan types --------------------------
+export interface MealPlanDay {
+  day: string; // e.g. "Monday"
+  meals: SimpleRecipe[]; // breakfast, lunch, dinner (length 3)
+  dailyMacros: {
+    calories: number;
+    protein: number;
+    carbs: number;
+    fat: number;
+  };
+}
+
+/** Divide macro nutrient targets by a factor (e.g. 3 for per-meal) */
+const divideMacros = (macros: MacroNutrients, factor = 3): MacroNutrients => {
+  const divided: MacroNutrients = {};
+  (Object.keys(macros) as (keyof MacroNutrients)[]).forEach((k) => {
+    const val = macros[k];
+    if (val !== undefined) divided[k] = Math.round(val / factor);
+  });
+  return divided;
+};
+
+/**
+ * Generate a 7-day meal plan (3 meals per day) that collectively hit the
+ * provided daily macro targets. This is a naive implementation that simply
+ * reuses `generateRecipesWithIngredients` to create three recipes per day.
+ * In production you would craft a single OpenAI prompt to get the entire
+ * structured week at once, but breaking it up keeps latency manageable and
+ * avoids giant prompts.
+ */
+export async function generateMealPlanWithIngredients(
+  dailyMacros: MacroNutrients,
+  ingredients: string[],
+  extraPreference?: string,
+): Promise<MealPlanDay[]> {
+  const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const dailyCal = dailyMacros.calories;
+
+  // helper to random in range
+  const randPct = (min: number, max: number) => +(Math.random() * (max - min) + min).toFixed(2);
+
+  const days: MealPlanDay[] = [];
+
+  for (const day of weekDays) {
+    // pick percentages until dinner within range
+    let bPct = 0, lPct = 0, dPct = 0;
+    do {
+      bPct = randPct(0.20, 0.25);
+      lPct = randPct(0.30, 0.35);
+      dPct = 1 - (bPct + lPct);
+    } while (dPct < 0.35 || dPct > 0.4);
+
+    const pcts = [bPct, lPct, dPct];
+    const mealNames = ['Breakfast', 'Lunch', 'Dinner'];
+
+    const threeMeals: SimpleRecipe[] = [];
+
+    for (let i = 0; i < 3; i++) {
+      // build per-meal macro targets
+      const pct = pcts[i];
+      const perMeal: MacroNutrients = {};
+      (Object.keys(dailyMacros) as (keyof MacroNutrients)[]).forEach((k) => {
+        const val = dailyMacros[k];
+        if (val !== undefined) {
+          perMeal[k] = Math.round(val * pct);
+        }
+      });
+
+      // add meal-type preference for typical foods
+      const pref = `${mealNames[i]} meal with typical ${mealNames[i].toLowerCase()} foods. ${extraPreference ?? ''}`.trim();
+
+      const recipes = await generateRecipesWithIngredients(perMeal, ingredients, pref);
+      if (recipes.length > 0) threeMeals.push(recipes[0]);
+    }
+
+    // Aggregate macros
+    const dailyTotal = threeMeals.reduce(
+      (acc, m) => {
+        acc.calories += m.macros.calories;
+        acc.protein += m.macros.protein;
+        acc.carbs += m.macros.carbs;
+        acc.fat += m.macros.fat;
+        return acc;
+      },
+      { calories: 0, protein: 0, carbs: 0, fat: 0 },
+    );
+
+    days.push({ day, meals: threeMeals, dailyMacros: dailyTotal });
+  }
+
+  return days;
+}

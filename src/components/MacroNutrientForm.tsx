@@ -12,9 +12,11 @@ interface MacroFormValues {
 
 interface MacroNutrientFormProps {
   onSubmit: (values: MacroFormValues) => void;
+  title?: string;
+  buttonLabel?: string;
 }
 
-const MacroNutrientForm: React.FC<MacroNutrientFormProps> = ({ onSubmit }) => {
+const MacroNutrientForm: React.FC<MacroNutrientFormProps> = ({ onSubmit, title = 'Macro Nutrients', buttonLabel = 'Generate Recipes' }) => {
   const [values, setValues] = useState<MacroFormValues>({
     calories: '',
     protein: '',
@@ -38,7 +40,7 @@ const MacroNutrientForm: React.FC<MacroNutrientFormProps> = ({ onSubmit }) => {
   return (
     <>
       <div className="bg-cookify-darkgray rounded-xl overflow-hidden mb-6 animate-fade-in p-4">
-        <h2 className="text-lg font-semibold mb-1">Macro Nutrients</h2>
+        <h2 className="text-lg font-semibold mb-1">{title}</h2>
         <p className="text-gray-400 text-sm mb-4">Leave blank if you don't care about a particular value.</p>
         <form onSubmit={handleSubmit} className="pt-0">
           <div className="grid grid-cols-2 gap-4 mb-4">
@@ -166,7 +168,7 @@ const MacroNutrientForm: React.FC<MacroNutrientFormProps> = ({ onSubmit }) => {
             type="submit"
             className="w-full py-3 px-6 rounded-lg bg-cookify-blue text-white font-medium hover:bg-blue-600 transition-colors"
           >
-            Generate Recipes
+            {buttonLabel}
           </button>
         </form>
       </div>
