@@ -7,7 +7,6 @@ import { generateMealPlanWithIngredients, MealPlanDay, MacroNutrients } from '@/
 import { showErrorToast } from '@/lib/utils';
 import { ArrowLeft } from 'lucide-react';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
-import DayPlanModal from '@/components/DayPlanModal';
 
 const MealPlanPage: React.FC = () => {
   const navigate = useNavigate();
@@ -16,7 +15,6 @@ const MealPlanPage: React.FC = () => {
   const [mealPlan, setMealPlan] = useState<MealPlanDay[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedMeal, setSelectedMeal] = useState<any | null>(null);
-  const [selectedDayPlan, setSelectedDayPlan] = useState<MealPlanDay | null>(null);
 
   const handleBack = () => {
     if (step === 'ingredients') {
@@ -75,80 +73,63 @@ const MealPlanPage: React.FC = () => {
 
         {loading && <p className="text-center mt-8 text-gray-400">Generating meal plan...</p>}
 
-        {step === 'results' && !loading && (
-          <div className="space-y-6">
-            <h2 className="text-xl font-bold mb-4">Weekly Plan</h2>
-            <div className="bg-cookify-darkgray rounded-lg p-4">
-              {(() => {
-                const today = new Date();
-                const year = today.getFullYear();
-                const month = today.getMonth();
-                const firstOfMonth = new Date(year, month, 1);
-                const daysInMonth = new Date(year, month + 1, 0).getDate();
-                const startWeekday = firstOfMonth.getDay(); // 0=Sun
-                const totalCells = Math.ceil((startWeekday + daysInMonth) / 7) * 7; // full weeks
-
-                const header = (
-                  <div className="grid grid-cols-7 text-center text-sm text-gray-400 mb-2">
-                    {['S','M','T','W','T','F','S'].map(d => <div key={d}>{d}</div>)}
+        {step === 'results' && !loading && mealPlan.length > 0 && (
+          <div className="space-y-8">
+            <h2 className="text-2xl font-bold mb-6">Your Weekly Meal Plan</h2>
+            
+            {mealPlan.map((day, dayIndex) => (
+              <div key={dayIndex} className="bg-cookify-darkgray rounded-lg p-6">
+                <div className="mb-4">
+                  <h3 className="text-xl font-semibold text-white mb-2">{day.day}</h3>
+                  <div className="flex flex-wrap gap-4 text-sm text-gray-400">
+                    <span>{day.dailyMacros.calories} kcal</span>
+                    <span>{day.dailyMacros.protein}g Protein</span>
+                    <span>{day.dailyMacros.carbs}g Carbs</span>
+                    <span>{day.dailyMacros.fat}g Fat</span>
                   </div>
-                );
-
-                const cells = Array.from({ length: totalCells }).map((_, idx) => {
-                  const dateNum = idx - startWeekday + 1;
-                  const inMonth = dateNum >= 1 && dateNum <= daysInMonth;
-
-                  if (!inMonth) {
-                    return <div key={`blank-${idx}`}></div>;
-                  }
-
-                  const cellDate = new Date(year, month, dateNum);
-                  const mealIdx = Math.floor((cellDate.getTime() - today.getTime()) / (1000*60*60*24));
-
-                  if (mealIdx >=0 && mealIdx < mealPlan.length) {
-                    const dayPlan = mealPlan[mealIdx];
-                    return (
-                      <button
-                        key={dayPlan.day}
-                        onClick={() => setSelectedDayPlan(dayPlan)}
-                        className="border border-cookify-lightgray rounded-md p-2 hover:border-cookify-blue focus:outline-none text-left h-24"
-                      >
-                        <span className="text-xs font-semibold text-white">{dateNum}</span>
-                        <ul className="mt-1 space-y-0.5">
-                          {dayPlan.meals.map(m => (
-                            <li key={m.title} className="text-[10px] truncate text-gray-300">{m.title}</li>
-                          ))}
-                        </ul>
-                      </button>
-                    );
-                  }
-
-                  return (
-                    <div key={idx} className="border border-cookify-lightgray rounded-md p-2 text-left text-xs text-gray-500 h-24">
-                      {dateNum}
+                </div>
+                
+                <div className="space-y-4">
+                  {day.meals.map((meal, mealIndex) => (
+                    <div 
+                      key={mealIndex}
+                      className="bg-cookify-lightgray rounded-lg p-4 cursor-pointer hover:bg-gray-600 transition-colors border border-gray-300"
+                      onClick={() => setSelectedMeal(meal)}
+                    >
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <h4 className="text-lg font-medium text-white mb-2">{meal.title}</h4>
+                          {meal.ingredients && meal.ingredients.length > 0 && (
+                            <div className="mb-3">
+                              <p className="text-sm text-black mb-1">Ingredients:</p>
+                              <div className="flex flex-wrap gap-2">
+                                {meal.ingredients.map((ingredient, idx) => (
+                                  <span 
+                                    key={idx} 
+                                    className="text-sm text-gray-600"
+                                  >
+                                    {ingredient}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        <div className="text-right ml-4">
+                          <div className="text-sm text-gray-400 space-y-1">
+                            <div>{meal.macros.calories} kcal</div>
+                            <div>{meal.macros.protein}g P</div>
+                            <div>{meal.macros.carbs}g C</div>
+                            <div>{meal.macros.fat}g F</div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  );
-                });
-
-                return (
-                  <>
-                    {header}
-                    <div className="grid grid-cols-7 gap-1">
-                      {cells}
-                    </div>
-                  </>
-                );
-              })()}
-            </div>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
-        )}
-
-        {selectedDayPlan && (
-          <DayPlanModal
-            dayPlan={selectedDayPlan}
-            onClose={()=>setSelectedDayPlan(null)}
-            onMealSelect={(meal)=>setSelectedMeal(meal)}
-          />
         )}
 
         {selectedMeal && (
@@ -160,8 +141,8 @@ const MealPlanPage: React.FC = () => {
               title: selectedMeal.title,
               image: '',
               readyInMinutes: 30,
-              servings: 1,
-              ingredients: selectedMeal.ingredients,
+              servings: 2,
+              ingredients: selectedMeal.ingredients || [],
               macros: selectedMeal.macros,
               useAIImage: true,
             }}
