@@ -193,10 +193,6 @@ We welcome contributions! Please feel free to submit issues, feature requests, o
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## 🙏 Acknowledgments
 
 - **OpenAI** for providing the AI capabilities that power our food detection and recipe generation
