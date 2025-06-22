@@ -296,7 +296,7 @@ export async function generateRecipesWithIngredients(
     .join(', ');
 
   const preferenceText = extraPreference ? ` Also, consider these user preferences: ${extraPreference}.` : '';
-  const prompt = `You are an expert chef and nutritionist. Using ONLY these ingredients (with amounts): ${ingredientList}. Create EXACTLY 3 recipe ideas that satisfy these macros: ${macroString}.${preferenceText} Return ONLY valid JSON in this format (no markdown):\n[ {\n  "title": "...",\n  "ingredients": ["item 1", "item 2"],\n  "macros": { "calories": 0, "protein": 0, "carbs": 0, "fat": 0 }\n}, ... ]`;
+  const prompt = `You are an expert chef and nutritionist. Using ONLY these ingredients (with amounts): ${ingredientList}. Create EXACTLY 3 recipe ideas that satisfy these macros: ${macroString}. Each recipe must be DISTINCT from the others in style, flavour profile, and preparation method, and must be realistically suitable for a ${preferenceText ? 'requested ' : ''}meal type. Return ONLY valid JSON in this format (no markdown):\n[ {\n  "title": "...",\n  "ingredients": ["item 1", "item 2"],\n  "macros": { "calories": 0, "protein": 0, "carbs": 0, "fat": 0 }\n}, ... ]`;
 
   const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
