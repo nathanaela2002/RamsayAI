@@ -164,4 +164,8 @@
   .text-cookify-blue, .text-blue-600 { color: hsl(var(--primary)) !important; }
   .hover\:text-cookify-blue:hover, .hover\:text-blue-600:hover { color: hsl(var(--primary)) !important; }
   .border-cookify-blue { border-color: hsl(var(--primary)) !important; }
+
+  .font-circular {
+    font-family: 'Circular', sans-serif;
+  }
 }
