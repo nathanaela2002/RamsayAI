@@ -10,7 +10,7 @@ const recipes = [
   {
     id: 1,
     title: 'Classic Spaghetti Bolognese',
-    image: 'https://spoonacular.com/recipeImages/654959-636x393.jpg',
+    image: '/assets/Sphagetti.png',
     readyInMinutes: 30,
     servings: 2,
     ingredients: ['Spaghetti', 'Ground beef', 'Tomato sauce', 'Onion'],
@@ -19,7 +19,7 @@ const recipes = [
   {
     id: 2,
     title: 'Grilled Lemon Chicken',
-    image: 'https://spoonacular.com/recipeImages/638420-636x393.jpg',
+    image: '/assets/Grilled%20Chicken%20Lemon.png',
     readyInMinutes: 25,
     servings: 2,
     ingredients: ['Chicken breast', 'Lemon', 'Olive oil', 'Garlic'],
@@ -28,7 +28,7 @@ const recipes = [
   {
     id: 3,
     title: 'Avocado Toast Deluxe',
-    image: 'https://spoonacular.com/recipeImages/716627-636x393.jpg',
+    image: '/assets/avacado%20toast.png',
     readyInMinutes: 10,
     servings: 1,
     ingredients: ['Bread', 'Avocado', 'Egg', 'Chili flakes'],
@@ -37,7 +37,7 @@ const recipes = [
   {
     id: 4,
     title: 'Quinoa Salad Bowl',
-    image: 'https://spoonacular.com/recipeImages/653969-636x393.jpg',
+    image: '/assets/Quinoa.png',
     readyInMinutes: 20,
     servings: 2,
     ingredients: ['Quinoa', 'Cucumber', 'Cherry tomatoes', 'Feta'],
@@ -46,7 +46,7 @@ const recipes = [
   {
     id: 5,
     title: 'Beef Stir Fry',
-    image: 'https://spoonacular.com/recipeImages/716627-636x393.jpg',
+    image: '/assets/beef-stir.png',
     readyInMinutes: 25,
     servings: 2,
     ingredients: ['Beef', 'Broccoli', 'Soy sauce', 'Garlic'],
@@ -55,7 +55,7 @@ const recipes = [
   {
     id: 6,
     title: 'Veggie Omelette',
-    image: 'https://spoonacular.com/recipeImages/715415-636x393.jpg',
+    image: '/assets/Veggie%20Omelette.png',
     readyInMinutes: 15,
     servings: 1,
     ingredients: ['Eggs', 'Spinach', 'Bell pepper', 'Cheese'],
@@ -64,7 +64,7 @@ const recipes = [
   {
     id: 7,
     title: 'Berry Smoothie',
-    image: 'https://spoonacular.com/recipeImages/715497-636x393.jpg',
+    image: '/assets/Berry%20Smoothie.png',
     readyInMinutes: 5,
     servings: 1,
     ingredients: ['Berries', 'Banana', 'Yogurt', 'Honey'],
@@ -73,7 +73,7 @@ const recipes = [
   {
     id: 8,
     title: 'Mediterranean Salad',
-    image: 'https://spoonacular.com/recipeImages/642129-636x393.jpg',
+    image: '/assets/Mediterranean%20Salad.png',
     readyInMinutes: 15,
     servings: 2,
     ingredients: ['Lettuce', 'Olives', 'Feta', 'Cucumber'],

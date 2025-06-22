@@ -21,7 +21,7 @@ const previousRecipes: StaticRecipe[] = [
   {
     id: 1,
     title: 'Classic Spaghetti Bolognese',
-    image: 'https://spoonacular.com/recipeImages/654959-636x393.jpg',
+    image: '/assets/Sphagetti.png',
     readyInMinutes: 30,
     servings: 2,
     ingredients: ['Spaghetti', 'Ground beef', 'Tomato sauce', 'Onion'],
@@ -30,7 +30,7 @@ const previousRecipes: StaticRecipe[] = [
   {
     id: 2,
     title: 'Grilled Lemon Chicken',
-    image: 'https://spoonacular.com/recipeImages/638420-636x393.jpg',
+    image: '/assets/Grilled%20Chicken%20Lemon.png',
     readyInMinutes: 25,
     servings: 2,
     ingredients: ['Chicken breast', 'Lemon', 'Olive oil', 'Garlic'],
@@ -39,7 +39,7 @@ const previousRecipes: StaticRecipe[] = [
   {
     id: 3,
     title: 'Avocado Toast Deluxe',
-    image: 'https://spoonacular.com/recipeImages/716627-636x393.jpg',
+    image: '/assets/avacado%20toast.png',
     readyInMinutes: 10,
     servings: 1,
     ingredients: ['Bread', 'Avocado', 'Egg', 'Chili flakes'],
