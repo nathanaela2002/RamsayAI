@@ -4,7 +4,6 @@ import Layout from '@/components/Layout';
 import SearchBar from '@/components/SearchBar';
 import { Button } from '@/components/ui/button';
 import RecipeCard from '@/components/RecipeCard';
-import { AIRecipe, generateRandomRecipes, generateRecipeImage } from '@/lib/openai';
 
 interface StaticRecipe {
   id: number;
@@ -48,22 +47,35 @@ const previousRecipes: StaticRecipe[] = [
 ];
 
 const Index = () => {
-  const [todayPicks, setTodayPicks] = React.useState<AIRecipe[]>([]);
-  React.useEffect(() => {
-    const loadPicks = async () => {
-      const aiRecipes = await generateRandomRecipes(3);
-      const withImages = await Promise.all(
-        aiRecipes.map(async (r, idx) => ({
-          ...r,
-          id: idx + 1,
-          image: await generateRecipeImage(r.title),
-          useAIImage: true,
-        }))
-      );
-      setTodayPicks(withImages);
-    };
-    loadPicks();
-  }, []);
+  const todayPicks = [
+    {
+      id: 6,
+      title: 'Veggie Omelette',
+      image: '/assets/Veggie Omelette.png',
+      readyInMinutes: 15,
+      servings: 1,
+      ingredients: ['Eggs', 'Spinach', 'Bell pepper', 'Cheese'],
+      macros: { calories: 260, protein: 18, carbs: 5, fat: 18 },
+    },
+    {
+      id: 7,
+      title: 'Berry Smoothie',
+      image: '/assets/Berry Smoothie.png',
+      readyInMinutes: 5,
+      servings: 1,
+      ingredients: ['Berries', 'Banana', 'Yogurt', 'Honey'],
+      macros: { calories: 190, protein: 8, carbs: 35, fat: 3 },
+    },
+    {
+      id: 8,
+      title: 'Mediterranean Salad',
+      image: '/assets/Mediterranean Salad.png',
+      readyInMinutes: 15,
+      servings: 2,
+      ingredients: ['Lettuce', 'Olives', 'Feta', 'Cucumber'],
+      macros: { calories: 230, protein: 9, carbs: 12, fat: 17 },
+    },
+  ];
 
   const handleSearch = (query: string) => {
     if (query) {
@@ -126,7 +138,7 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Today's picks section 
+          {/* Today's picks section */}
           <div className="mb-16">
             <div className="flex items-center justify-between mb-4 px-2">
               <h2 className="text-lg font-semibold">Today's picks</h2>
@@ -143,11 +155,11 @@ const Index = () => {
                   servings={r.servings}
                   ingredients={r.ingredients}
                   macros={r.macros}
-                  useAIImage={r.useAIImage}
+                  useAIImage={false}
                 />
               ))}
             </div>
-          </div> */}
+          </div> 
 
         </div>
       </div>

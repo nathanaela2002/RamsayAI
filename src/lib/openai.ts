@@ -1,5 +1,3 @@
-export const OPENAI_API_KEY = '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';
-
 export interface GPTMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
@@ -336,7 +334,7 @@ export async function generateRecipeImage(recipeTitle: string): Promise<string> 
       },
       body: JSON.stringify({
         model: 'dall-e-3',
-        prompt: `A realistic, appetizing photograph of ${recipeTitle} on table in natural daylight. Light setting, realistic, centered, zoomed in subject and focused on the food, no text, neutral light background.`,
+        prompt: `A realistic, appetizing photo of ${recipeTitle} on table in natural daylight.`,
         n: 1,
         size: '1024x1024',
         quality: 'standard',
