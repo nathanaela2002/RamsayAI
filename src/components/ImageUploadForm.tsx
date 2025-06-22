@@ -20,6 +20,9 @@ const ImageUploadForm: React.FC<ImageUploadFormProps> = ({ onIngredientsDetected
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [videoStream, setVideoStream] = useState<MediaStream | null>(null);
+  const [showManualAdd, setShowManualAdd] = useState(false);
+  const [manualName, setManualName] = useState('');
+  const [manualCount, setManualCount] = useState('1');
 
   useEffect(() => {
     // auto start camera on mount
@@ -193,6 +196,28 @@ const ImageUploadForm: React.FC<ImageUploadFormProps> = ({ onIngredientsDetected
     onIngredientsDetected(ingredients);
   };
 
+  const handleAddManualFood = () => {
+    if (!manualName.trim()) return;
+    const cnt = parseInt(manualCount) > 0 ? parseInt(manualCount) : 1;
+    const manualFood = {
+      name: manualName.trim().toLowerCase(),
+      count: cnt,
+      confidence: 1,
+      category: 'manual',
+    } as DetectedFood;
+    setDetectedFoods(prev => [...prev, manualFood]);
+    setManualName('');
+    setManualCount('1');
+    setShowManualAdd(false);
+  };
+
+  const handleManualKey = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddManualFood();
+    }
+  };
+
   return (
     <div className="space-y-4">
       <Card className="bg-cookify-darkgray border-cookify-lightgray">
@@ -336,16 +361,44 @@ const ImageUploadForm: React.FC<ImageUploadFormProps> = ({ onIngredientsDetected
               <h3 className="text-lg font-semibold text-white">
                 Detected Food Items
               </h3>
-              <Button
-                type="button"
-                onClick={applyDetectedFoods}
-                className="bg-cookify-blue text-white hover:bg-blue-600"
-              >
-                <CheckCircle className="h-4 w-4 mr-2" />
-                Add to Ingredients
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  onClick={() => setShowManualAdd(p=>!p)}
+                  variant="outline"
+                  size="sm"
+                  className="bg-cookify-lightgray border-cookify-blue text-white hover:bg-cookify-blue"
+                >
+                  Add more ingredients
+                </Button>
+               
+              </div>
             </div>
             
+            {showManualAdd && (
+              <div className="flex items-center gap-2 mb-4">
+                <input
+                  type="text"
+                  value={manualName}
+                  onChange={e=>setManualName(e.target.value)}
+                  onKeyDown={handleManualKey}
+                  placeholder="Ingredient name"
+                  className="flex-1 p-2 rounded bg-cookify-lightgray text-white placeholder-gray-400 border-none"
+                />
+                <input
+                  type="number"
+                  min="1"
+                  value={manualCount}
+                  onChange={e=>setManualCount(e.target.value)}
+                  onKeyDown={handleManualKey}
+                  className="w-20 p-2 rounded bg-cookify-lightgray text-white border-none"
+                />
+                <Button type="button" onClick={handleAddManualFood} className="p-2 bg-cookify-blue text-white rounded">
+                  Add
+                </Button>
+              </div>
+            )}
+
             <div className="space-y-3">
               {detectedFoods.map((food, index) => (
                 <div

@@ -126,46 +126,7 @@ const IngredientForm: React.FC<IngredientFormProps> = ({ onSubmit, initialMode =
             </div>
           )}
 
-          {/* Add more ingredients */}
-          {ingredients.length > 0 && (
-            <div className="mt-4 space-y-2">
-              {!showManual ? (
-                <button
-                  type="button"
-                  onClick={() => setShowManual(true)}
-                  className="text-cookify-blue underline text-sm"
-                >
-                  Add more ingredients
-                </button>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    value={manualName}
-                    onChange={e=>setManualName(e.target.value)}
-                    onKeyDown={handleManualKey}
-                    placeholder="Ingredient"
-                    className="flex-1 p-2 rounded bg-cookify-lightgray text-white placeholder-gray-400 border-none"
-                  />
-                  <input
-                    type="number"
-                    min="1"
-                    value={manualAmt}
-                    onChange={e=>setManualAmt(e.target.value)}
-                    onKeyDown={handleManualKey}
-                    className="w-20 p-2 rounded bg-cookify-lightgray text-white border-none"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleAddManual}
-                    className="p-2 bg-cookify-blue text-white rounded"
-                  >
-                    Add
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
+          
         </div>
       )}
     </div>
