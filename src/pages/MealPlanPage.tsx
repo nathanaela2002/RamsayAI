@@ -141,11 +141,12 @@ const MealPlanPage: React.FC = () => {
               title: selectedMeal.title,
               image: '',
               readyInMinutes: 30,
-              servings: 2,
-              ingredients: selectedMeal.ingredients || [],
+              servings: 1,
+              ingredients: selectedMeal.ingredients,
               macros: selectedMeal.macros,
-              useAIImage: true,
+              useAIImage: false,
             }}
+            showImage={false}
           />
         )}
       </div>

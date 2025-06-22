@@ -33,7 +33,8 @@ const DayPlanModal: React.FC<DayPlanModalProps> = ({ dayPlan, onClose, onMealSel
             readyInMinutes={30}
             servings={2}
             ingredients={meal.ingredients || []}
-            useAIImage={true}
+            useAIImage={false}
+            showImage={false}
             uniqueId={`modal-${dayPlan.day}-meal-${idx}`}
           />
         ))}

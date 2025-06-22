@@ -16,6 +16,7 @@ interface MealCardProps {
   ingredients?: string[];
   useAIImage?: boolean;
   uniqueId?: string;
+  showImage?: boolean;
 }
 
 const MealCard: React.FC<MealCardProps> = ({ 
@@ -26,7 +27,8 @@ const MealCard: React.FC<MealCardProps> = ({
   servings = 2,
   ingredients = [],
   useAIImage = true,
-  uniqueId = ''
+  uniqueId = '',
+  showImage = true,
 }) => {
   const [aiImageUrl, setAiImageUrl] = useState<string>('');
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
@@ -39,10 +41,10 @@ const MealCard: React.FC<MealCardProps> = ({
   }, [uniqueId]);
 
   useEffect(() => {
-    if (useAIImage && !aiImageUrl && !isGeneratingImage) {
+    if (showImage && useAIImage && !aiImageUrl && !isGeneratingImage) {
       generateAIImage();
     }
-  }, [useAIImage, aiImageUrl, isGeneratingImage, uniqueId]);
+  }, [showImage, useAIImage, aiImageUrl, isGeneratingImage, uniqueId]);
 
   const generateAIImage = async () => {
     setIsGeneratingImage(true);
@@ -73,29 +75,31 @@ const MealCard: React.FC<MealCardProps> = ({
       className="recipe-card bg-gray-100 rounded-xl overflow-hidden cursor-pointer relative"
       onClick={onClick}
     >
-      <div className="relative h-48 overflow-hidden">
-        {isGeneratingImage ? (
-          <div className="w-full h-full flex items-center justify-center bg-cookify-lightgray">
-            <div className="text-center">
-              <Sparkles className="mx-auto h-8 w-8 text-cookify-blue animate-pulse mb-2" />
-              <p className="text-sm text-gray-400">Generating AI image...</p>
+      {showImage && (
+        <div className="relative h-48 overflow-hidden">
+          {isGeneratingImage ? (
+            <div className="w-full h-full flex items-center justify-center bg-cookify-lightgray">
+              <div className="text-center">
+                <Sparkles className="mx-auto h-8 w-8 text-cookify-blue animate-pulse mb-2" />
+                <p className="text-sm text-gray-400">Generating AI image...</p>
+              </div>
             </div>
-          </div>
-        ) : (
-          <img 
-            src={displayImage} 
-            alt={title} 
-            className="w-full h-full object-cover"
-            onError={handleImageError}
-          />
-        )}
-        
-        {showAIIndicator && (
-          <div className="absolute top-2 left-2 bg-black bg-opacity-50 rounded-full px-2 py-1">
-            <Sparkles size={12} className="text-cookify-blue" />
-          </div>
-        )}
-      </div>
+          ) : (
+            <img 
+              src={displayImage} 
+              alt={title} 
+              className="w-full h-full object-cover"
+              onError={handleImageError}
+            />
+          )}
+          
+          {showAIIndicator && (
+            <div className="absolute top-2 left-2 bg-black bg-opacity-50 rounded-full px-2 py-1">
+              <Sparkles size={12} className="text-cookify-blue" />
+            </div>
+          )}
+        </div>
+      )}
       
       <div className="p-4">
         <h3 className="text-lg font-semibold line-clamp-1">{title}</h3>

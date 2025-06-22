@@ -25,6 +25,7 @@ interface RecipeDetailModalProps {
     ingredients?: string[];
   };
   onToggleFavorite?: () => void;
+  showImage?: boolean;
 }
 
 const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
@@ -32,6 +33,7 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
   onClose,
   recipe,
   onToggleFavorite,
+  showImage = true,
 }) => {
   const [aiImageUrl, setAiImageUrl] = useState<string>('');
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
@@ -40,10 +42,10 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
   const [activeTab, setActiveTab] = useState<'overview' | 'ingredients' | 'instructions' | 'nutrition' | 'tips'>('overview');
 
   useEffect(() => {
-    if (recipe.useAIImage && !aiImageUrl && !isGeneratingImage) {
+    if (showImage && recipe.useAIImage && !aiImageUrl && !isGeneratingImage) {
       generateAIImage();
     }
-  }, [recipe.useAIImage, aiImageUrl, isGeneratingImage]);
+  }, [showImage, recipe.useAIImage, aiImageUrl, isGeneratingImage]);
 
   const generateAIImage = async () => {
     setIsGeneratingImage(true);
@@ -99,40 +101,42 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="relative">
-          <div className="relative h-64 overflow-hidden rounded-t-xl">
-            {isGeneratingImage ? (
-              <div className="w-full h-full flex items-center justify-center bg-gray-100">
-                <div className="text-center">
-                  <Sparkles className="mx-auto h-8 w-8 text-cookify-blue animate-pulse mb-2" />
-                  <p className="text-sm text-gray-600">Generating AI image...</p>
+        {/* Header Image (optional) */}
+        {showImage && (
+          <div className="relative">
+            <div className="relative h-64 overflow-hidden rounded-t-xl">
+              {isGeneratingImage ? (
+                <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                  <div className="text-center">
+                    <Sparkles className="mx-auto h-8 w-8 text-cookify-blue animate-pulse mb-2" />
+                    <p className="text-sm text-gray-600">Generating AI image...</p>
+                  </div>
                 </div>
-              </div>
-            ) : (
-              <img 
-                src={displayImage} 
-                alt={recipe.title} 
-                className="w-full h-full object-cover"
-                onError={handleImageError}
-              />
-            )}
-            
-            {showAIIndicator && (
-              <div className="absolute top-4 left-4 bg-black bg-opacity-50 rounded-full px-3 py-1 flex items-center">
-                <Sparkles size={14} className="text-cookify-blue mr-1" />
-                <span className="text-white text-sm">AI Generated</span>
-              </div>
-            )}
-            
-            <button
-              onClick={onClose}
-              className="absolute top-4 right-4 p-2 rounded-full bg-black bg-opacity-50 hover:bg-opacity-70 transition-all"
-            >
-              <X size={20} className="text-white" />
-            </button>
+              ) : (
+                <img 
+                  src={displayImage} 
+                  alt={recipe.title} 
+                  className="w-full h-full object-cover"
+                  onError={handleImageError}
+                />
+              )}
+              
+              {showAIIndicator && (
+                <div className="absolute top-4 left-4 bg-black bg-opacity-50 rounded-full px-3 py-1 flex items-center">
+                  <Sparkles size={14} className="text-cookify-blue mr-1" />
+                  <span className="text-white text-sm">AI Generated</span>
+                </div>
+              )}
+              
+              <button
+                onClick={onClose}
+                className="absolute top-4 right-4 p-2 rounded-full bg-black bg-opacity-50 hover:bg-opacity-70 transition-all"
+              >
+                <X size={20} className="text-white" />
+              </button>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Content */}
         <div className="p-6">
@@ -150,10 +154,6 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
                 <div className="flex items-center">
                   <Users size={16} className="mr-1" />
                   <span>{servings} servings</span>
-                </div>
-                <div className="flex items-center">
-                  <Star size={16} className="mr-1 text-yellow-400" />
-                  <span>4.8/5</span>
                 </div>
               </div>
             </div>
@@ -178,29 +178,7 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
             </div>
           </div>
 
-          {/* Servings Adjuster */}
-          <div className="bg-gray-50 rounded-lg p-4 mb-6">
-            <div className="flex items-center justify-between">
-              <span className="text-gray-900 font-medium">Adjust Servings:</span>
-              <div className="flex items-center space-x-3">
-                <button
-                  onClick={() => handleServingsChange(false)}
-                  disabled={servings <= 1}
-                  className="p-1 rounded-full bg-white hover:bg-cookify-blue hover:text-white transition-colors disabled:opacity-50"
-                >
-                  <Minus size={16} />
-                </button>
-                <span className="text-gray-900 font-bold text-lg min-w-[2rem] text-center">{servings}</span>
-                <button
-                  onClick={() => handleServingsChange(true)}
-                  disabled={servings >= 20}
-                  className="p-1 rounded-full bg-white hover:bg-cookify-blue hover:text-white transition-colors disabled:opacity-50"
-                >
-                  <Plus size={16} />
-                </button>
-              </div>
-            </div>
-          </div>
+          {/* Servings Adjuster removed as per UI simplification */}
 
           {/* Tabs */}
           <div className="flex border-b border-gray-200 mb-6">
