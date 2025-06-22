@@ -336,7 +336,7 @@ export async function generateRecipeImage(recipeTitle: string): Promise<string> 
       },
       body: JSON.stringify({
         model: 'dall-e-3',
-        prompt: `A beautiful, appetizing photograph of ${recipeTitle}. Professional food photography style, well-lit, high quality, realistic, delicious looking food.`,
+        prompt: `A beautiful, appetizing photograph of ${recipeTitle} on a light table in natural daylight. Light setting, realistic professional food photography, centered subject, no text, neutral light background.`,
         n: 1,
         size: '1024x1024',
         quality: 'standard',
@@ -360,5 +360,40 @@ export async function generateRecipeImage(recipeTitle: string): Promise<string> 
     console.error('Error generating recipe image:', error);
     // Return a placeholder image or the original image on error
     return '';
+  }
+}
+
+export interface AIRecipe {
+  id?: number;
+  title: string;
+  description: string;
+  readyInMinutes: number;
+  servings: number;
+  ingredients: string[];
+  macros: {
+    calories: number;
+    protein: number;
+    carbs: number;
+    fat: number;
+  };
+  image?: string;
+  useAIImage?: boolean;
+}
+
+export async function generateRandomRecipes(count = 3): Promise<AIRecipe[]> {
+  const prompt = `Create EXACTLY ${count} unique recipe ideas as JSON (no markdown) in the following format: [{"title":"...","description":"...","readyInMinutes":25,"servings":2,"ingredients":["item1","item2"],"macros":{"calories":350,"protein":20,"carbs":40,"fat":12}}]. Make them appetizing and diverse.`;
+
+  try {
+    const response = await getGPTResponse([
+      { role: 'system', content: 'You are a master chef who outputs only valid JSON.' },
+      { role: 'user', content: prompt },
+    ]);
+    const first = response.indexOf('[');
+    const last = response.lastIndexOf(']');
+    const json = first >= 0 ? response.slice(first, last + 1) : '[]';
+    return JSON.parse(json);
+  } catch (e) {
+    console.error('generateRandomRecipes error', e);
+    return [];
   }
 }

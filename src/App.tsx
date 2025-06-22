@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,6 +8,7 @@ import SearchPage from "./pages/SearchPage";
 import RecipeDetail from "./pages/RecipeDetail";
 import CategoryPage from "./pages/CategoryPage";
 import MacrosPage from "./pages/MacrosPage";
+import MyRecipes from "./pages/MyRecipes";
 import NotFound from "./pages/NotFound";
 
 // Create a client
@@ -34,6 +34,8 @@ const App = () => {
             <Route path="/recipe/:id" element={<RecipeDetail />} />
             <Route path="/category/:category" element={<CategoryPage />} />
             <Route path="/macros" element={<MacrosPage />} />
+            <Route path="/single-meal" element={<MacrosPage />} />
+            <Route path="/myrecipes" element={<MyRecipes />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

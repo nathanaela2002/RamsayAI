@@ -1,32 +1,39 @@
-
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Search, Home, BookOpen, User, Utensils } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { User } from 'lucide-react';
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const location = useLocation();
+  // const location = useLocation();
+  const [open, setOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (open && menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [open]);
   
   return (
-    <div className="min-h-screen bg-cookify-dark text-white flex flex-col">
-      <header className="p-5 flex justify-between items-center">
+    <div className="min-h-screen bg-white text-black flex flex-col">
+      <header className="py-3 px-5 flex justify-between items-center">
         <Link to="/" className="flex items-center">
           <h1 className="text-2xl font-bold">
-            COOKIFY<span className="text-cookify-blue">AI</span>
+            Ramsay<span className="text-primary">AI</span>
           </h1>
         </Link>
-        <div className="flex items-center gap-5">
-          <Link to="/" className="text-white hover:text-cookify-blue transition-colors">
-            <Home size={22} />
-          </Link>
-          <Link to="/search" className="text-white hover:text-cookify-blue transition-colors">
-            <Search size={22} />
-          </Link>
-          <Link to="/saved" className="text-white hover:text-cookify-blue transition-colors">
-            <BookOpen size={22} />
-          </Link>
-          <Link to="/profile" className="text-white hover:text-cookify-blue transition-colors">
+        <div className="relative flex items-center" ref={menuRef}>
+          <button onClick={() => setOpen(!open)} className="text-black hover:text-primary transition-colors">
             <User size={22} />
-          </Link>
+          </button>
+          {open && (
+            <div className="absolute right-0 mt-2 bg-white border border-gray-200 rounded shadow-md animate-fade-in">
+              <button className="block px-4 py-2 text-sm text-black hover:bg-gray-100 w-full text-left">Log out</button>
+            </div>
+          )}
         </div>
       </header>
       
@@ -35,12 +42,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       </main>
       
       <div className="fixed bottom-5 left-1/2 transform -translate-x-1/2 z-50">
-        <Link 
-          to="/macros"
-          className="flex items-center justify-center w-14 h-14 rounded-full bg-cookify-blue text-white shadow-lg hover:bg-blue-500 transition-all"
-        >
-          <Utensils size={24} />
-        </Link>
+        {/* Bottom action removed as per UI simplification */}
       </div>
     </div>
   );

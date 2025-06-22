@@ -21,6 +21,11 @@ const ImageUploadForm: React.FC<ImageUploadFormProps> = ({ onIngredientsDetected
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [videoStream, setVideoStream] = useState<MediaStream | null>(null);
 
+  useEffect(() => {
+    // auto start camera on mount
+    openCamera();
+  }, []);
+
   const handleFileSelect = (file: File) => {
     if (file && file.type.startsWith('image/')) {
       setSelectedImage(file);
@@ -28,6 +33,8 @@ const ImageUploadForm: React.FC<ImageUploadFormProps> = ({ onIngredientsDetected
       const url = URL.createObjectURL(file);
       setPreviewUrl(url);
       setDetectedFoods([]);
+      // Cancel camera preview when an image is uploaded
+      closeCamera();
     } else {
       setError('Please select a valid image file.');
     }
@@ -115,6 +122,8 @@ const ImageUploadForm: React.FC<ImageUploadFormProps> = ({ onIngredientsDetected
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
+    // Reopen camera immediately after image is cleared
+    openCamera();
   };
 
   const analyzeImage = async () => {
@@ -129,6 +138,14 @@ const ImageUploadForm: React.FC<ImageUploadFormProps> = ({ onIngredientsDetected
       
       // Call the food detection API
       const result = await detectFoodItems(base64);
+
+      // If nothing is detected, show an error prompting the user to try again
+      if (result.foods.length === 0) {
+        setDetectedFoods([]);
+        setError('No items detected. Please retake the photo or upload a clearer image.');
+        return;
+      }
+
       setDetectedFoods(result.foods);
       
       // Convert detected foods to ingredients list
@@ -180,27 +197,40 @@ const ImageUploadForm: React.FC<ImageUploadFormProps> = ({ onIngredientsDetected
     <div className="space-y-4">
       <Card className="bg-cookify-darkgray border-cookify-lightgray">
         <CardContent className="p-6">
-          <h3 className="text-lg font-semibold mb-4 text-white">
-            Upload Refrigerator/Pantry Image
-          </h3>
+          {/* Camera preview & capture */}
           
           {isCameraActive ? (
             /* -------------------- Live camera preview -------------------- */
-            <div className="relative">
-              <video
-                ref={videoRef}
-                autoPlay
-                playsInline
-                className="w-full h-64 object-cover rounded-lg bg-black"
-              />
+            <div className="space-y-4">
+              <div className="relative">
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  className="w-full max-h-[480px] object-contain bg-black"
+                />
+                {/* bottom bezel */}
+                <div className="absolute bottom-0 left-0 w-full h-16 bg-black flex items-center justify-center">
+                  <Button
+                    type="button"
+                    onClick={snapPhoto}
+                    className="bg-white rounded-full w-12 h-12 p-0"
+                  >
+                    <span className="sr-only">Capture</span>
+                  </Button>
+                </div>
+              </div>
+
+              {/* Upload button always below camera */}
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={snapPhoto}
-                className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-cookify-blue text-white hover:bg-blue-600"
+                onClick={() => fileInputRef.current?.click()}
+                className="w-full bg-cookify-lightgray border-cookify-blue text-white hover:bg-cookify-blue"
               >
-                Snap Photo
+                <Upload className="h-4 w-4 mr-2" />
+                Upload Image
               </Button>
             </div>
           ) : previewUrl ? (
@@ -209,7 +239,7 @@ const ImageUploadForm: React.FC<ImageUploadFormProps> = ({ onIngredientsDetected
                 <img
                   src={previewUrl}
                   alt="Preview"
-                  className="w-full h-64 object-cover rounded-lg"
+                  className="w-full max-h-[480px] object-contain rounded-lg"
                 />
                 <Button
                   type="button"
@@ -249,9 +279,6 @@ const ImageUploadForm: React.FC<ImageUploadFormProps> = ({ onIngredientsDetected
               <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
               <p className="text-white mb-2">
                 Drag and drop an image here, or click to select
-              </p>
-              <p className="text-gray-400 text-sm">
-                Supports JPG, PNG, GIF up to 10MB
               </p>
               <div className="flex gap-2 mt-4 justify-center">
                 <Button
@@ -330,14 +357,6 @@ const ImageUploadForm: React.FC<ImageUploadFormProps> = ({ onIngredientsDetected
                       <p className="text-white font-medium capitalize">
                         {food.name}
                       </p>
-                      <div className="flex items-center space-x-2 mt-1">
-                        <Badge variant="secondary" className="text-xs">
-                          {food.category}
-                        </Badge>
-                        <span className="text-gray-400 text-xs">
-                          {Math.round(food.confidence * 100)}% confidence
-                        </span>
-                      </div>
                     </div>
                   </div>
                   

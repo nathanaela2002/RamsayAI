@@ -23,7 +23,13 @@ const MacrosPage = () => {
   const [lastMacros, setLastMacros] = useState<any>(null);
 
   const handleBack = () => {
-    navigate(-1);
+    if (step === 'ingredients') {
+      navigate(-1);
+    } else if (step === 'macros') {
+      setStep('ingredients');
+    } else {
+      setStep('macros');
+    }
   };
 
   const handleIngredientSubmit = (ingredients: string[]) => {
@@ -74,17 +80,15 @@ const MacrosPage = () => {
   return (
     <Layout>
       <div className="max-w-screen-lg mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center">
-            <button
-              onClick={handleBack}
-              className="flex items-center text-white hover:text-cookify-blue transition-colors mr-4"
-            >
-              <ArrowLeft size={18} className="mr-1" />
-              Back
-            </button>
-            <h1 className="text-2xl font-bold">Find Your Recipe</h1>
-          </div>
+        <div className="mb-6">
+          <button
+            onClick={handleBack}
+            className="flex items-center text-primary hover:underline mb-2"
+          >
+            <ArrowLeft size={18} className="mr-1" />
+            Back
+          </button>
+          <h1 className="text-2xl font-bold">Find Your Recipe</h1>
         </div>
         
         {step === 'ingredients' && (

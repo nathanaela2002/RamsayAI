@@ -83,7 +83,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
 
   return (
     <div 
-      className="recipe-card bg-cookify-darkgray rounded-xl overflow-hidden cursor-pointer relative"
+      className="recipe-card bg-gray-100 rounded-xl overflow-hidden cursor-pointer relative"
       onClick={handleClick}
     >
       <div className="relative h-48 overflow-hidden">

@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -54,10 +53,10 @@ export default {
 					foreground: 'hsl(var(--card-foreground))'
 				},
 				cookify: {
-					blue: '#4D9DFF',
-					dark: '#121316',
-					darkgray: '#1E1F23',
-					lightgray: '#2A2B30',
+					blue: '#16A34A',
+					dark: '#FFFFFF',
+					darkgray: '#F0F0F0',
+					lightgray: '#F8F8F8',
 					white: '#FFFFFF',
 				}
 			},
@@ -99,7 +98,10 @@ export default {
 				'fade-out': 'fade-out 0.4s ease-out',
 				'slide-in': 'slide-in 0.4s ease-out',
 				'zoom-in': 'zoom-in 0.3s ease-out'
-			}
+			},
+			fontFamily: {
+				circular: ["\"Circular\"", "sans-serif"],
+			},
 		}
 	},
 	plugins: [require("tailwindcss-animate")],

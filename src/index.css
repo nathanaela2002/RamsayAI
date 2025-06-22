@@ -1,20 +1,32 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: "Circular";
+  src: url("/fonts/circular_book.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Circular";
+  src: url("/fonts/circular_medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 0 0% 0%;
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 142.1 76% 36.3%;
+    --primary-foreground: 0 0% 100%;
     --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary-foreground: 0 0% 0%;
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
     --accent: 210 40% 96.1%;
@@ -56,7 +68,7 @@
   }
 
   body {
-    @apply bg-cookify-dark text-white antialiased;
+    @apply bg-white text-black font-circular antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
@@ -136,4 +148,20 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background: #4D9DFF;
+}
+
+@layer utilities {
+  .text-white, .fill-white { color: hsl(var(--foreground)) !important; fill: hsl(var(--foreground)) !important; }
+  .text-gray-400 { color: hsl(var(--foreground) / 0.6) !important; }
+  .text-gray-500 { color: hsl(var(--foreground) / 0.7) !important; }
+
+  .bg-cookify-dark, .bg-cookify-darkgray, .bg-cookify-lightgray { background-color: hsl(var(--background)) !important; }
+  .border-cookify-lightgray { border-color: hsl(var(--border)) !important; }
+
+  .bg-cookify-blue, .bg-blue-600 { background-color: hsl(var(--primary)) !important; color: hsl(var(--primary-foreground)) !important; }
+  .hover\:bg-blue-600:hover, .hover\:bg-cookify-blue:hover { background-color: hsl(var(--primary) / 0.85) !important; }
+
+  .text-cookify-blue, .text-blue-600 { color: hsl(var(--primary)) !important; }
+  .hover\:text-cookify-blue:hover, .hover\:text-blue-600:hover { color: hsl(var(--primary)) !important; }
+  .border-cookify-blue { border-color: hsl(var(--primary)) !important; }
 }
