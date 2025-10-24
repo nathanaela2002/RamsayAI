@@ -1,53 +1,53 @@
-# 🍳 Ramsay AI - AI-Powered Smart Meal Planner
+# Ramsay AI - AI-Powered Smart Meal Planner
 
 > *"There's nothing to eat"* - We've all been there. Staring at a packed fridge or pantry and still thinking there's nothing to cook. Ramsay AI eliminates this everyday problem using AI to transform your kitchen inventory into delicious meal possibilities.
 
-## 🌟 What We Built
+## What We Built
 
 Ramsay AI is a smart, AI-powered meal planner that revolutionizes how you think about cooking. Users can:
 
-- **📸 Snap & Scan**: Take a photo of their pantry or fridge
-- **🤖 AI Detection**: Let AI detect ingredients and count what's available
-- **🍽️ Recipe Generation**: Get personalized recipe ideas based on current inventory
-- **⚖️ Nutrition Focus**: Specify calorie and macronutrient targets (protein, carbs, fat)
-- **📋 Complete Recipes**: Full instructions, cook time, and ingredient lists
-- **📅 Meal Planning**: Receive full weekly meal prep plans (3 meals/day) based on what's on hand
-- **🔍 Smart Search**: Find recipes by ingredients, macros, or dietary preferences
+- **Snap & Scan**: Take a photo of their pantry or fridge
+- **AI Detection**: Let AI detect ingredients and count what's available
+- **Recipe Generation**: Get personalized recipe ideas based on current inventory
+- **Nutrition Focus**: Specify calorie and macronutrient targets (protein, carbs, fat)
+- **Complete Recipes**: Full instructions, cook time, and ingredient lists
+- **Meal Planning**: Receive full weekly meal prep plans (3 meals/day) based on what's on hand
+- **Smart Search**: Find recipes by ingredients, macros, or dietary preferences
 
-## ✨ Key Features
+## Key Features
 
-### 🖼️ **Image Upload & Food Detection**
+### **Image Upload & Food Detection**
 - **Drag & Drop Interface**: Easy image upload with visual feedback
 - **Camera Integration**: Direct camera access for mobile users
 - **AI-Powered Recognition**: Detects 50+ common food items across 8 categories:
-  - 🥬 Vegetables (tomato, onion, garlic, bell pepper, etc.)
-  - 🍎 Fruits (apple, banana, orange, lemon, etc.)
-  - 🥩 Meat (chicken breast, ground beef, salmon, bacon, etc.)
-  - 🥛 Dairy (milk, cheese, butter, yogurt, eggs, etc.)
-  - 🌾 Grains (rice, pasta, bread, etc.)
-  - 🌿 Herbs (basil, parsley, cilantro, rosemary, etc.)
-  - 🧂 Pantry (olive oil, salt, pepper, flour, sugar, etc.)
-  - 🥫 Condiments (ketchup, mustard, mayonnaise, soy sauce, etc.)
+  - Vegetables (tomato, onion, garlic, bell pepper, etc.)
+  - Fruits (apple, banana, orange, lemon, etc.)
+  - Meat (chicken breast, ground beef, salmon, bacon, etc.)
+  - Dairy (milk, cheese, butter, yogurt, eggs, etc.)
+  - Grains (rice, pasta, bread, etc.)
+  - Herbs (basil, parsley, cilantro, rosemary, etc.)
+  - Pantry (olive oil, salt, pepper, flour, sugar, etc.)
+  - Condiments (ketchup, mustard, mayonnaise, soy sauce, etc.)
 
-### 📊 **Smart Ingredient Management**
+### **Smart Ingredient Management**
 - **Automatic Counting**: AI estimates quantities of detected items
 - **Manual Adjustment**: Fine-tune counts with +/- controls
 - **Confidence Scoring**: See detection accuracy for each item
 - **Category Classification**: Organized by food type for easy browsing
 
-### 🎯 **Nutrition & Macro Tracking**
+### **Nutrition & Macro Tracking**
 - **Custom Macros**: Set protein, carbs, fat, and calorie targets
 - **Dietary Preferences**: Filter recipes by dietary restrictions
 - **Nutritional Analysis**: Complete nutritional breakdown for each recipe
 - **Health-Focused**: Prioritize recipes that meet your nutritional goals
 
-### 🔍 **Advanced Recipe Search**
+### **Advanced Recipe Search**
 - **Ingredient-Based**: Find recipes using available ingredients
 - **Macro-Based**: Search by nutritional requirements
 - **AI-Powered**: Natural language search with intelligent suggestions
 - **Favorites System**: Save and organize your favorite recipes
 
-## 🛠️ How We Built It
+## How We Built It
 
 ### **Frontend Stack**
 - **React 18** - Modern UI library with hooks and functional components
@@ -76,7 +76,7 @@ Ramsay AI is a smart, AI-powered meal planner that revolutionizes how you think 
 - **PostCSS** - CSS processing and optimization
 - **Hot Module Replacement** - Instant development feedback
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 - Node.js (v16 or higher)
@@ -139,7 +139,7 @@ npm run preview
    - Get shopping lists for missing ingredients
    - Track your nutritional goals
 
-## 🧠 What We Learned
+## What We Learned
 
 - **Computer Vision Challenges**: Working with vision models in real-world conditions (poor lighting, cluttered spaces, reflections)
 - **AI Prompt Engineering**: Crafting precise prompts for consistent, structured AI outputs
@@ -147,7 +147,7 @@ npm run preview
 - **System Integration**: Connecting multiple components (frontend, backend, AI, database) into a cohesive system
 - **Performance Optimization**: Balancing AI accuracy with real-time user experience
 
-## 🚧 Challenges We Faced
+## Challenges We Faced
 
 ### **Image Quality Issues**
 **Problem**: Poor lighting in user photos made ingredient recognition unreliable.
@@ -161,28 +161,28 @@ npm run preview
 **Problem**: AI processing could be slow, affecting user experience.
 **Solution**: Implemented loading states, progress indicators, and optimized API calls for better perceived performance.
 
-## 🔮 What's Next
+## What's Next
 
 ### **Immediate Roadmap**
-- 🛒 **Smart Shopping Lists**: Generate grocery lists for missing ingredients
-- 🎤 **Voice Commands**: Add voice interface for hands-free operation
-- 📱 **Mobile App**: Native mobile application for better camera integration
-- 🌍 **Multi-Language**: Support for different languages and regional cuisines
+- **Smart Shopping Lists**: Generate grocery lists for missing ingredients
+- **Voice Commands**: Add voice interface for hands-free operation
+- **Mobile App**: Native mobile application for better camera integration
+- **Multi-Language**: Support for different languages and regional cuisines
 
 ### **Advanced Features**
-- 📊 **Nutritional Tracking**: Daily/weekly nutritional goal tracking
-- 🏷️ **Barcode Scanning**: Scan product barcodes for instant ingredient addition
-- 📅 **Meal Prep Planning**: Advanced meal prep scheduling and reminders
-- 👥 **Social Features**: Share recipes and meal plans with friends and family
-- 🏪 **Grocery Integration**: Connect with grocery delivery services
+- **Nutritional Tracking**: Daily/weekly nutritional goal tracking
+- **Barcode Scanning**: Scan product barcodes for instant ingredient addition
+- **Meal Prep Planning**: Advanced meal prep scheduling and reminders
+- **Social Features**: Share recipes and meal plans with friends and family
+- **Grocery Integration**: Connect with grocery delivery services
 
 ### **AI Enhancements**
-- 🍎 **Freshness Detection**: Evaluate food freshness from images
-- 🏷️ **Brand Recognition**: Identify specific food brands and products
-- 📏 **Quantity Estimation**: More accurate quantity and portion detection
-- 🧠 **Learning System**: AI learns from user preferences and cooking patterns
+- **Freshness Detection**: Evaluate food freshness from images
+- **Brand Recognition**: Identify specific food brands and products
+- **Quantity Estimation**: More accurate quantity and portion detection
+- **Learning System**: AI learns from user preferences and cooking patterns
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions! Please feel free to submit issues, feature requests, or pull requests.
 
@@ -193,7 +193,7 @@ We welcome contributions! Please feel free to submit issues, feature requests, o
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - **OpenAI** for providing the AI capabilities that power our food detection and recipe generation
 - **Spoonacular API** for comprehensive recipe database
@@ -203,6 +203,6 @@ We welcome contributions! Please feel free to submit issues, feature requests, o
 
 ---
 
-**Built with ❤️ for everyone who's ever stared at a full fridge and thought "there's nothing to eat"**
+**Built with for everyone who's ever stared at a full fridge and thought "there's nothing to eat"**
 
 *Ramsay AI - Where AI meets your kitchen*
