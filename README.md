@@ -1,4 +1,4 @@
-# Ramsay AI - AI-Powered Smart Meal Planner
+# [Ramsay AI - AI-Powered Smart Meal Planner](https://devpost.com/software/ramsayai#updates)
 
 > *"There's nothing to eat"* - We've all been there. Staring at a packed fridge or pantry and still thinking there's nothing to cook. Ramsay AI eliminates this everyday problem using AI to transform your kitchen inventory into delicious meal possibilities.
 
